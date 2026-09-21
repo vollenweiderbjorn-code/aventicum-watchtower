@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Watchtower — Aventicum Quest</title>
+<meta name="description" content="Poste de contrôle Aventicum Quest.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#141110">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Watchtower">
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<style>
+  :root{
+    --bg:#141110;
+    --surface:#1c1815;
+    --hairline: rgba(201,162,75,0.22);
+    --hairline-strong: rgba(201,162,75,0.45);
+    --gold:#c9a24b;
+    --gold-dim:#8a744a;
+    --text:#f5f0e6;
+    --text-muted:#948c7d;
+    --ok:#8ba07c;
+    --err:#b3543a;
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top: env(safe-area-inset-top, 0px);}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  .wrap{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 20px 64px;
+  }
+
+  header.masthead{
+    text-align:center;
+    padding: 12px 0 28px;
+  }
+  .wordmark{
+    font-family:var(--serif);
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    color: var(--gold);
+    margin: 0;
+  }
+  .eyebrow{
+    font-family:var(--sans);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    margin: 6px 0 0;
+  }
+  .masthead-rule{
+    width: 56px; height:1px; margin: 16px auto 0;
+    background: var(--hairline-strong);
+  }
+
+  .hero{
+    text-align:center;
+    padding: 20px 0 8px;
+  }
+  .hero-status{
+    font-family:var(--serif);
+    font-size: 34px;
+    margin: 0;
+    letter-spacing: 0.5px;
+  }
+  .hero-status.ok{ color: var(--gold); }
+  .hero-status.err{ color: var(--err); }
+  .hero-sub{
+    color: var(--text-muted);
+    font-size: 13px;
+    margin: 8px 0 0;
+  }
+  .dot{
+    display:inline-block;
+    width:8px; height:8px;
+    border-radius:50%;
+    margin-right:8px;
+    position:relative; top:-2px;
+  }
+  .dot.ok{ background: var(--ok); }
+  .dot.err{ background: var(--err); animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse{
+    0%,100%{ box-shadow: 0 0 0 0 rgba(179,84,58,0.5); }
+    50%{ box-shadow: 0 0 0 6px rgba(179,84,58,0); }
+  }
+
+  .subscribe-row{
+    display:flex; justify-content:center; margin: 22px 0 4px;
+  }
+  button.subscribe{
+    font-family:var(--sans);
+    font-size: 13px;
+    color: var(--bg);
+    background: var(--gold);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+  }
+  button.subscribe:active{ opacity: 0.85; }
+  button.subscribe[disabled]{
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--hairline-strong);
+  }
+
+  section.band{
+    margin-top: 40px;
+    border-top: 1px solid var(--hairline);
+  }
+  .band-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding: 18px 0 4px;
+  }
+  .band-title{
+    font-family:var(--serif);
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    color: var(--text);
+  }
+  .band-count{
+    font-family:var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .row:first-of-type{ border-top:none; }
+  .row-main{ min-width:0; }
+  .row-title{
+    font-size: 14px;
+    color: var(--text);
+  }
+  .row-detail{
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .row-time{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+  .row-title .tag{
+    display:inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 1px 6px;
+    margin-right: 8px;
+    border: 1px solid var(--hairline-strong);
+    color: var(--gold-dim);
+  }
+  .row.err .row-title{ color: var(--err); }
+  .row.err .tag{ color: var(--err); border-color: rgba(179,84,58,0.5); }
+
+  .empty{
+    padding: 16px 0 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  footer{
+    text-align:center;
+    margin-top: 48px;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="wordmark">AVENTICUM QUEST</p>
+    <p class="eyebrow">OPERATIO AQUILA — WATCHTOWER</p>
+    <div class="masthead-rule"></div>
+  </header>
+
+  <div class="hero">
+    <p class="hero-status ok" id="heroStatus"><span class="dot ok" id="heroDot"></span>Vérification…</p>
+    <p class="hero-sub" id="heroSub">Connexion au poste de contrôle</p>
+  </div>
+
+  <div class="subscribe-row">
+    <button class="subscribe" id="subscribeBtn">Activer les notifications</button>
+  </div>
+
+  <section class="band">
+    <div class="band-head">
+      <span class="band-title">Statut des systèmes</span>
+      <span class="band-count" id="checksCount">—</span>
+    </div>
+    <div id="checksList"><div class="empty">Chargement…</div></div>
+  </section>
+
+  <section class="band">
+    <div class="band-head">
+      <span class="band-title">Parties &amp; achats récents</span>
+      <span class="band-count" id="playsCount">—</span>
+    </div>
+    <div id="playsList"><div class="empty">Chargement…</div></div>
+  </section>
+
+  <section class="band">
+    <div class="band-head">
+      <span class="band-title">Incidents</span>
+      <span class="band-count" id="errorsCount">—</span>
+    </div>
+    <div id="errorsList"><div class="empty">Chargement…</div></div>
+  </section>
+
+  <footer>Actualisé automatiquement · <span id="lastRefresh">—</span></footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STATUS_URL = "https://n8n-production-9874d.up.railway.app/webhook/aventicum-watchtower-status";
+  var REFRESH_MS = 60000;
+
+  function timeAgo(iso){
+    if(!iso) return "";
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return "";
+    var diff = Math.round((Date.now() - d.getTime())/1000);
+    if(diff < 5) return "à l'instant";
+    if(diff < 60) return diff + " s";
+    var min = Math.round(diff/60);
+    if(min < 60) return "il y a " + min + " min";
+    var h = Math.round(min/60);
+    if(h < 24) return "il y a " + h + " h";
+    var days = Math.round(h/24);
+    return "il y a " + days + " j";
+  }
+
+  function el(tag, cls, html){
+    var e = document.createElement("div");
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function renderChecks(checks){
+    var list = document.getElementById("checksList");
+    var count = document.getElementById("checksCount");
+    list.innerHTML = "";
+    if(!checks || checks.length === 0){
+      list.appendChild(el("div","empty","Aucun relevé pour l'instant."));
+      count.textContent = "0";
+      return { ok: true, hasData:false };
+    }
+    count.textContent = checks.length;
+    var allOk = true;
+    checks.sort(function(a,b){ return a.checkName.localeCompare(b.checkName); });
+    checks.forEach(function(c){
+      var isOk = c.status === "ok";
+      if(!isOk) allOk = false;
+      var row = el("div","row" + (isOk ? "" : " err"));
+      var main = el("div","row-main");
+      main.appendChild(el("div","row-title",
+        '<span class="tag">' + (isOk ? "OK" : "ERREUR") + '</span>' + escapeHtml(c.checkName)));
+      main.appendChild(el("div","row-detail", escapeHtml(c.detail || "")));
+      row.appendChild(main);
+      row.appendChild(el("div","row-time", timeAgo(c.checkedAt)));
+      list.appendChild(row);
+    });
+    return { ok: allOk, hasData:true };
+  }
+
+  function renderPlays(plays){
+    var list = document.getElementById("playsList");
+    var count = document.getElementById("playsCount");
+    list.innerHTML = "";
+    if(!plays || plays.length === 0){
+      list.appendChild(el("div","empty","Aucun mouvement pour l'instant — la garnison est tranquille."));
+      count.textContent = "0";
+      return;
+    }
+    count.textContent = plays.length;
+    plays.forEach(function(p){
+      var isAchat = p.eventType === "achat";
+      var row = el("div","row");
+      var main = el("div","row-main");
+      var label = isAchat ? "ACHAT" : "PARTIE";
+      var title = isAchat
+        ? (p.email || "Acheteur inconnu")
+        : "Code utilisé";
+      main.appendChild(el("div","row-title",
+        '<span class="tag">' + label + '</span>' + escapeHtml(title)));
+      var detailBits = [];
+      if(p.code) detailBits.push(p.code);
+      if(p.langue) detailBits.push(p.langue.toUpperCase());
+      main.appendChild(el("div","row-detail", escapeHtml(detailBits.join(" · "))));
+      row.appendChild(main);
+      row.appendChild(el("div","row-time", timeAgo(p.happenedAt)));
+      list.appendChild(row);
+    });
+  }
+
+  function renderErrors(errors){
+    var list = document.getElementById("errorsList");
+    var count = document.getElementById("errorsCount");
+    list.innerHTML = "";
+    if(!errors || errors.length === 0){
+      list.appendChild(el("div","empty","Aucun incident enregistré."));
+      count.textContent = "0";
+      return;
+    }
+    count.textContent = errors.length;
+    errors.forEach(function(e){
+      var row = el("div","row err");
+      var main = el("div","row-main");
+      main.appendChild(el("div","row-title",
+        '<span class="tag">' + escapeHtml(e.workflowName || "Workflow") + '</span>' + escapeHtml(e.nodeName || "")));
+      main.appendChild(el("div","row-detail", escapeHtml(e.message || "")));
+      row.appendChild(main);
+      row.appendChild(el("div","row-time", timeAgo(e.happenedAt)));
+      list.appendChild(row);
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function setHero(ok, hasIncidentLog){
+    var status = document.getElementById("heroStatus");
+    var dot = document.getElementById("heroDot");
+    var sub = document.getElementById("heroSub");
+    if(ok){
+      status.className = "hero-status ok";
+      status.innerHTML = '<span class="dot ok" id="heroDot"></span>Opérationnel';
+      sub.textContent = "Tous les systèmes répondent normalement";
+    } else {
+      status.className = "hero-status err";
+      status.innerHTML = '<span class="dot err" id="heroDot"></span>Incident';
+      sub.textContent = "Un ou plusieurs systèmes ne répondent pas";
+    }
+  }
+
+  function setHeroError(){
+    var status = document.getElementById("heroStatus");
+    var sub = document.getElementById("heroSub");
+    status.className = "hero-status err";
+    status.innerHTML = '<span class="dot err"></span>Poste injoignable';
+    sub.textContent = "Impossible de contacter le Watchtower";
+  }
+
+  function refresh(){
+    fetch(STATUS_URL, { method: "GET" })
+      .then(function(r){
+        if(!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(data){
+        var checksResult = renderChecks(data.checks);
+        renderPlays(data.plays);
+        renderErrors(data.errors);
+        setHero(checksResult.ok);
+        document.getElementById("lastRefresh").textContent = timeAgo(data.generatedAt) || "à l'instant";
+      })
+      .catch(function(){
+        setHeroError();
+      });
+  }
+
+  refresh();
+  setInterval(refresh, REFRESH_MS);
+
+  // --- OneSignal push ---
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  var subscribeBtn = document.getElementById("subscribeBtn");
+
+  function updateSubscribeButton(OneSignal){
+    var subscribed = OneSignal.User.PushSubscription.optedIn;
+    if(subscribed){
+      subscribeBtn.textContent = "Notifications activées";
+      subscribeBtn.disabled = true;
+    } else {
+      subscribeBtn.textContent = "Activer les notifications";
+      subscribeBtn.disabled = false;
+    }
+  }
+
+  OneSignalDeferred.push(async function(OneSignal){
+    await OneSignal.init({ appId: "5798010b-42f1-4929-bbd9-f8295f0a13bf" });
+    updateSubscribeButton(OneSignal);
+    OneSignal.User.PushSubscription.addEventListener("change", function(){
+      updateSubscribeButton(OneSignal);
+    });
+    subscribeBtn.addEventListener("click", function(){
+      OneSignal.Notifications.requestPermission();
+    });
+  });
+
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("/OneSignalSDKWorker.js");
+  }
+})();
+</script>
+
+</body>
+</html>
