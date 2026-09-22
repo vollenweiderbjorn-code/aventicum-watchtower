@@ -42,6 +42,9 @@
   body{
     margin:0;
     background:var(--bg);
+    background-image: radial-gradient(1100px 420px at 50% -140px, rgba(201,162,75,0.12), transparent 70%);
+    background-repeat:no-repeat;
+    background-attachment: fixed;
     color:var(--text);
     font-family:var(--sans);
     -webkit-font-smoothing:antialiased;
@@ -139,14 +142,18 @@
   }
 
   section.band{
-    margin-top: 40px;
-    border-top: 1px solid var(--hairline);
+    margin-top: 16px;
+    background: linear-gradient(180deg, rgba(201,162,75,0.04), transparent 60%), var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 2px 18px 12px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.25);
   }
   .band-head{
     display:flex;
     align-items:baseline;
     justify-content:space-between;
-    padding: 18px 0 4px;
+    padding: 16px 0 8px;
   }
   .band-title{
     font-family:var(--serif);
@@ -194,6 +201,8 @@
     padding: 1px 6px;
     margin-right: 8px;
     border: 1px solid var(--hairline-strong);
+    border-radius: 4px;
+    background: rgba(201,162,75,0.07);
     color: var(--gold-dim);
   }
   .row.err .row-title{ color: var(--err); }
@@ -235,6 +244,13 @@
     text-align: center;
   }
   .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Graphe de disponibilité */
+  .chart-metric{ font-family: var(--serif); font-size: 20px; color: var(--gold); }
+  .chart-metric small{ font-family: var(--sans); font-size: 11px; color: var(--text-muted); margin-left: 4px; letter-spacing: 0.3px; }
+  svg.spark{ width: 100%; height: 84px; display: block; margin-top: 2px; }
+  .chart-axis{ display:flex; justify-content:space-between; font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 6px; }
+  .chart-empty{ color: var(--text-muted); font-size: 13px; font-style: italic; padding: 6px 0 12px; }
 
   /* Barre de progression fine pendant l'actualisation */
   .progress{
@@ -342,6 +358,14 @@
 
   <div class="banner" id="banner" role="alert"></div>
 
+  <section class="band" data-key="chart">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Disponibilité</span></span>
+      <span class="band-count chart-metric" id="chartMetric">—</span>
+    </div>
+    <div class="band-body" id="chartBody"><div class="chart-empty">Historique en cours de constitution…</div></div>
+  </section>
+
   <section class="band" data-key="checks">
     <div class="band-head" role="button" tabindex="0" aria-expanded="true">
       <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Statut des systèmes</span></span>
@@ -409,7 +433,61 @@
         history[c.checkName] = arr;
       }
     });
+    var tot = (checks || []).length;
+    if(tot){
+      var okc = (checks || []).filter(function(c){ return c.status === "ok"; }).length;
+      var newest = newestCheckedAt(checks);
+      var tkey = newest ? new Date(newest).toISOString() : new Date().toISOString();
+      var g = history.__uptime || [];
+      var lg = g[g.length - 1];
+      if(!lg || lg.t !== tkey){
+        g.push({ t: tkey, ok: okc, total: tot });
+        while(g.length > MAX_HIST) g.shift();
+        history.__uptime = g;
+      }
+    }
     lsSet(HIST_KEY, JSON.stringify(history));
+  }
+
+  function renderChart(){
+    var body = document.getElementById("chartBody");
+    var metric = document.getElementById("chartMetric");
+    var series = history.__uptime || [];
+    if(series.length < 2){
+      body.innerHTML = '<div class="chart-empty">Historique en cours de constitution… un point par relevé horaire.</div>';
+      metric.innerHTML = series.length
+        ? (Math.round(series[0].ok / series[0].total * 100) + '% <small>maintenant</small>')
+        : "—";
+      return;
+    }
+    var n = series.length, W = 100, H = 40, gap = 1.4;
+    var bw = (W - gap * (n - 1)) / n;
+    var fullH = H - 3;
+    var rects = "";
+    for(var i = 0; i < n; i++){
+      var p = series[i];
+      var ratio = p.total ? p.ok / p.total : 0;
+      var okH = fullH * ratio;
+      var downH = fullH - okH;
+      var xx = (i * (bw + gap)).toFixed(2);
+      var w = bw.toFixed(2);
+      var tip = fullTime(p.t) + ' · ' + p.ok + '/' + p.total + ' systèmes';
+      // rail (total)
+      rects += '<rect x="' + xx + '" y="' + (H - fullH).toFixed(2) + '" width="' + w + '" height="' + fullH.toFixed(2)
+        + '" rx="0.5" fill="rgba(201,162,75,0.09)"><title>' + tip + '</title></rect>';
+      // portion OK (or) en bas
+      if(okH > 0.4) rects += '<rect x="' + xx + '" y="' + (H - okH).toFixed(2) + '" width="' + w + '" height="' + okH.toFixed(2)
+        + '" rx="0.5" fill="var(--gold)"/>';
+      // portion tombée (rouge) en haut
+      if(downH > 0.4) rects += '<rect x="' + xx + '" y="' + (H - fullH).toFixed(2) + '" width="' + w + '" height="' + downH.toFixed(2)
+        + '" rx="0.5" fill="var(--err)"/>';
+    }
+    body.innerHTML =
+      '<svg class="spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Disponibilité récente">'
+      + rects + '</svg>'
+      + '<div class="chart-axis"><span>' + (timeAgo(series[0].t) || "début") + '</span><span>maintenant</span></div>';
+    var cur = series[n - 1];
+    metric.innerHTML = Math.round(cur.ok / cur.total * 100) + '% <small>maintenant</small>';
   }
   function historyStrip(name){
     var arr = history[name] || [];
@@ -673,6 +751,7 @@
     var checksResult = renderChecks(data.checks);
     renderPlays(data.plays);
     renderErrors(data.errors);
+    renderChart();
     var newest = newestCheckedAt(data.checks);
     checksResult.newestIso = newest ? new Date(newest).toISOString() : null;
     var stale = newest > 0 && (Date.now() - newest) > STALE_MS;
