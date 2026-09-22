@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Watchtower — Aventicum Quest</title>
 <meta name="description" content="Poste de contrôle Aventicum Quest.">
+<meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -205,6 +206,57 @@
     font-style: italic;
   }
 
+  /* Barre de progression fine pendant l'actualisation */
+  .progress{
+    position: fixed;
+    top: env(safe-area-inset-top, 0px); left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    opacity: 0;
+    transition: transform 0.4s ease, opacity 0.3s ease;
+    z-index: 50;
+  }
+  .progress.active{ opacity: 1; transform: scaleX(0.85); transition: transform 8s ease-out, opacity 0.3s ease; }
+  .progress.done{ opacity: 0; transform: scaleX(1); transition: transform 0.2s ease, opacity 0.4s ease; }
+
+  /* Bandeau hors-ligne / données en cache */
+  .banner{
+    display:none;
+    text-align:center;
+    font-size: 12px;
+    color: var(--warn);
+    border: 1px solid rgba(201,138,58,0.4);
+    background: rgba(201,138,58,0.07);
+    padding: 8px 12px;
+    margin: 0 0 4px;
+  }
+  .banner.show{ display:block; }
+
+  /* Sections repliables */
+  .band-head{
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .band-head:focus-visible{ outline: 1px solid var(--hairline-strong); outline-offset: 2px; }
+  .band-title-wrap{ display:flex; align-items:center; gap:8px; min-width:0; }
+  .chev{
+    width: 7px; height: 7px;
+    border-right: 1.5px solid var(--gold-dim);
+    border-bottom: 1.5px solid var(--gold-dim);
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+    flex: none;
+  }
+  .band.collapsed .chev{ transform: rotate(-45deg); }
+  .band.collapsed .band-body{ display:none; }
+
+  .row-detail{
+    overflow-wrap: anywhere;
+  }
+
   footer{
     text-align:center;
     margin-top: 48px;
@@ -238,6 +290,8 @@
 </head>
 <body>
 
+<div class="progress" id="progress" aria-hidden="true"></div>
+
 <div class="wrap">
 
   <header class="masthead">
@@ -246,7 +300,7 @@
     <div class="masthead-rule"></div>
   </header>
 
-  <div class="hero">
+  <div class="hero" role="status" aria-live="polite">
     <p class="hero-status ok" id="heroStatus"><span class="dot ok" id="heroDot"></span>Vérification…</p>
     <p class="hero-sub" id="heroSub">Connexion au poste de contrôle</p>
   </div>
@@ -255,28 +309,30 @@
     <button class="subscribe" id="subscribeBtn">Activer les notifications</button>
   </div>
 
-  <section class="band">
-    <div class="band-head">
-      <span class="band-title">Statut des systèmes</span>
+  <div class="banner" id="banner" role="alert"></div>
+
+  <section class="band" data-key="checks">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Statut des systèmes</span></span>
       <span class="band-count" id="checksCount">—</span>
     </div>
-    <div id="checksList"><div class="empty">Chargement…</div></div>
+    <div class="band-body" id="checksList"><div class="empty">Chargement…</div></div>
   </section>
 
-  <section class="band">
-    <div class="band-head">
-      <span class="band-title">Parties &amp; achats récents</span>
+  <section class="band" data-key="plays">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Parties &amp; achats récents</span></span>
       <span class="band-count" id="playsCount">—</span>
     </div>
-    <div id="playsList"><div class="empty">Chargement…</div></div>
+    <div class="band-body" id="playsList"><div class="empty">Chargement…</div></div>
   </section>
 
-  <section class="band">
-    <div class="band-head">
-      <span class="band-title">Incidents</span>
+  <section class="band" data-key="errors">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Incidents</span></span>
       <span class="band-count" id="errorsCount">—</span>
     </div>
-    <div id="errorsList"><div class="empty">Chargement…</div></div>
+    <div class="band-body" id="errorsList"><div class="empty">Chargement…</div></div>
   </section>
 
   <footer>
@@ -298,6 +354,11 @@
 
   var pollTimer = null;
   var isRefreshing = false;
+  var CACHE_KEY = "aq-watchtower-cache";
+  var COLLAPSE_KEY = "aq-watchtower-collapsed";
+
+  function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+  function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
 
   function timeAgo(iso){
     if(!iso) return "";
@@ -321,10 +382,18 @@
     return e;
   }
 
+  function fullTime(iso){
+    if(!iso) return "";
+    var d = new Date(iso);
+    if(isNaN(d.getTime())) return "";
+    try { return d.toLocaleString("fr-CH", { dateStyle:"medium", timeStyle:"short" }); }
+    catch(e){ return d.toLocaleString(); }
+  }
+
   function timeEl(iso){
     var e = document.createElement("div");
     e.className = "row-time";
-    if(iso) e.setAttribute("data-iso", iso);
+    if(iso){ e.setAttribute("data-iso", iso); e.title = fullTime(iso); }
     e.textContent = timeAgo(iso);
     return e;
   }
@@ -381,7 +450,12 @@
       count.textContent = "0";
       return;
     }
-    count.textContent = plays.length;
+    var achats = plays.filter(function(p){ return p.eventType === "achat"; }).length;
+    var parties = plays.length - achats;
+    var bits = [];
+    if(achats) bits.push(achats + " achat" + (achats > 1 ? "s" : ""));
+    if(parties) bits.push(parties + " partie" + (parties > 1 ? "s" : ""));
+    count.textContent = bits.length ? bits.join(" · ") : String(plays.length);
     plays.forEach(function(p){
       var isAchat = p.eventType === "achat";
       var row = el("div","row");
@@ -459,19 +533,61 @@
   function setRefreshing(on){
     isRefreshing = on;
     var btn = document.getElementById("refreshBtn");
+    var prog = document.getElementById("progress");
     if(on){
       btn.disabled = true;
       document.getElementById("refreshLabel").innerHTML =
         '<span class="refresh-spin"></span>Actualisation…';
+      prog.classList.remove("done");
+      void prog.offsetWidth;           // reflow pour relancer l'animation
+      prog.classList.add("active");
     } else {
       btn.disabled = false;
+      prog.classList.remove("active");
+      prog.classList.add("done");
     }
+  }
+
+  function setBanner(msg){
+    var b = document.getElementById("banner");
+    if(msg){ b.textContent = msg; b.classList.add("show"); }
+    else { b.textContent = ""; b.classList.remove("show"); }
   }
 
   function setLastRefresh(iso){
     document.getElementById("refreshLabel").innerHTML =
       'Actualisé <span id="lastRefresh" data-iso="' + (iso || "") + '">'
       + (timeAgo(iso) || "à l'instant") + '</span> · appuyer pour rafraîchir';
+  }
+
+  function applyData(data){
+    var checksResult = renderChecks(data.checks);
+    renderPlays(data.plays);
+    renderErrors(data.errors);
+    var newest = newestCheckedAt(data.checks);
+    var stale = newest > 0 && (Date.now() - newest) > STALE_MS;
+    if(stale){
+      setHero("stale", { newestIso: new Date(newest).toISOString() });
+    } else if(checksResult.ok){
+      setHero("ok", checksResult);
+    } else {
+      setHero("incident", checksResult);
+    }
+    setLastRefresh(data.generatedAt);
+  }
+
+  function showCachedFallback(){
+    var raw = lsGet(CACHE_KEY);
+    if(raw){
+      try {
+        var cached = JSON.parse(raw);
+        applyData(cached.data);
+        setBanner("Hors ligne — données du " + (fullTime(cached.savedAt) || "dernier relevé"));
+        return;
+      } catch(e){ /* cache corrompu, on tombe sur l'état injoignable */ }
+    }
+    setHero("unreachable");
+    document.getElementById("refreshLabel").textContent = "Hors ligne · appuyer pour réessayer";
   }
 
   function refresh(){
@@ -483,23 +599,12 @@
         return r.json();
       })
       .then(function(data){
-        var checksResult = renderChecks(data.checks);
-        renderPlays(data.plays);
-        renderErrors(data.errors);
-        var newest = newestCheckedAt(data.checks);
-        var stale = newest > 0 && (Date.now() - newest) > STALE_MS;
-        if(stale){
-          setHero("stale", { newestIso: new Date(newest).toISOString() });
-        } else if(checksResult.ok){
-          setHero("ok", checksResult);
-        } else {
-          setHero("incident", checksResult);
-        }
-        setLastRefresh(data.generatedAt);
+        setBanner("");
+        applyData(data);
+        lsSet(CACHE_KEY, JSON.stringify({ savedAt: new Date().toISOString(), data: data }));
       })
       .catch(function(){
-        setHero("unreachable");
-        document.getElementById("refreshLabel").textContent = "Hors ligne · appuyer pour réessayer";
+        showCachedFallback();
       })
       .then(function(){
         setRefreshing(false);
@@ -525,6 +630,35 @@
 
   // Rafraîchissement manuel
   document.getElementById("refreshBtn").addEventListener("click", refresh);
+
+  // Sections repliables (état mémorisé par appareil)
+  function loadCollapsed(){
+    try { return JSON.parse(lsGet(COLLAPSE_KEY) || "{}") || {}; } catch(e){ return {}; }
+  }
+  (function initCollapsible(){
+    var state = loadCollapsed();
+    var bands = document.querySelectorAll(".band[data-key]");
+    for(var i = 0; i < bands.length; i++){
+      (function(band){
+        var key = band.getAttribute("data-key");
+        var head = band.querySelector(".band-head");
+        if(state[key]){ band.classList.add("collapsed"); head.setAttribute("aria-expanded","false"); }
+        function toggle(){
+          var collapsed = band.classList.toggle("collapsed");
+          head.setAttribute("aria-expanded", collapsed ? "false" : "true");
+          var s = loadCollapsed(); s[key] = collapsed; lsSet(COLLAPSE_KEY, JSON.stringify(s));
+        }
+        head.addEventListener("click", toggle);
+        head.addEventListener("keydown", function(e){
+          if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); }
+        });
+      })(bands[i]);
+    }
+  })();
+
+  // Détection connexion
+  window.addEventListener("offline", function(){ setBanner("Hors ligne — reconnexion en attente"); });
+  window.addEventListener("online", function(){ setBanner(""); refresh(); });
 
   refresh();
   startPolling();
