@@ -27,6 +27,7 @@
     --text-muted:#948c7d;
     --ok:#8ba07c;
     --err:#b3543a;
+    --warn:#c98a3a;
     --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -89,6 +90,7 @@
   }
   .hero-status.ok{ color: var(--gold); }
   .hero-status.err{ color: var(--err); }
+  .hero-status.warn{ color: var(--warn); }
   .hero-sub{
     color: var(--text-muted);
     font-size: 13px;
@@ -103,10 +105,17 @@
   }
   .dot.ok{ background: var(--ok); }
   .dot.err{ background: var(--err); animation: pulse 1.6s ease-in-out infinite; }
+  .dot.warn{ background: var(--warn); animation: pulse-warn 1.8s ease-in-out infinite; }
   @keyframes pulse{
     0%,100%{ box-shadow: 0 0 0 0 rgba(179,84,58,0.5); }
     50%{ box-shadow: 0 0 0 6px rgba(179,84,58,0); }
   }
+  @keyframes pulse-warn{
+    0%,100%{ box-shadow: 0 0 0 0 rgba(201,138,58,0.5); }
+    50%{ box-shadow: 0 0 0 6px rgba(201,138,58,0); }
+  }
+  .row.warn .row-title{ color: var(--warn); }
+  .row.warn .tag{ color: var(--warn); border-color: rgba(201,138,58,0.5); }
 
   .subscribe-row{
     display:flex; justify-content:center; margin: 22px 0 4px;
@@ -202,6 +211,29 @@
     color: var(--text-muted);
     font-size: 11px;
   }
+  button.refresh{
+    font-family: var(--sans);
+    font-size: 11px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+  }
+  button.refresh:active{ opacity: 0.6; }
+  button.refresh:disabled{ cursor: default; opacity: 0.5; }
+  .refresh-spin{
+    display:inline-block;
+    width:9px; height:9px;
+    margin-right:6px;
+    border:1.5px solid var(--hairline-strong);
+    border-top-color: var(--gold);
+    border-radius:50%;
+    position:relative; top:1px;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -247,7 +279,11 @@
     <div id="errorsList"><div class="empty">Chargement…</div></div>
   </section>
 
-  <footer>Actualisé automatiquement · <span id="lastRefresh">—</span></footer>
+  <footer>
+    <button class="refresh" id="refreshBtn" type="button" aria-label="Actualiser maintenant">
+      <span id="refreshLabel">Actualisé <span id="lastRefresh">—</span> · appuyer pour rafraîchir</span>
+    </button>
+  </footer>
 
 </div>
 
@@ -257,6 +293,11 @@
 
   var STATUS_URL = "https://n8n-production-9874d.up.railway.app/webhook/aventicum-watchtower-status";
   var REFRESH_MS = 60000;
+  var TICK_MS = 30000;               // rafraîchit les heures relatives sans refetch
+  var STALE_MS = 90 * 60 * 1000;     // relevé plus vieux que 90 min = surveillance en retard
+
+  var pollTimer = null;
+  var isRefreshing = false;
 
   function timeAgo(iso){
     if(!iso) return "";
@@ -280,6 +321,30 @@
     return e;
   }
 
+  function timeEl(iso){
+    var e = document.createElement("div");
+    e.className = "row-time";
+    if(iso) e.setAttribute("data-iso", iso);
+    e.textContent = timeAgo(iso);
+    return e;
+  }
+
+  function refreshTimes(){
+    var nodes = document.querySelectorAll("[data-iso]");
+    for(var i = 0; i < nodes.length; i++){
+      nodes[i].textContent = timeAgo(nodes[i].getAttribute("data-iso"));
+    }
+  }
+
+  function newestCheckedAt(checks){
+    var newest = 0;
+    (checks || []).forEach(function(c){
+      var t = new Date(c.checkedAt).getTime();
+      if(!isNaN(t) && t > newest) newest = t;
+    });
+    return newest;
+  }
+
   function renderChecks(checks){
     var list = document.getElementById("checksList");
     var count = document.getElementById("checksCount");
@@ -287,24 +352,24 @@
     if(!checks || checks.length === 0){
       list.appendChild(el("div","empty","Aucun relevé pour l'instant."));
       count.textContent = "0";
-      return { ok: true, hasData:false };
+      return { ok: true, hasData:false, okCount:0, total:0 };
     }
-    count.textContent = checks.length;
-    var allOk = true;
+    var okCount = 0;
     checks.sort(function(a,b){ return a.checkName.localeCompare(b.checkName); });
     checks.forEach(function(c){
       var isOk = c.status === "ok";
-      if(!isOk) allOk = false;
+      if(isOk) okCount++;
       var row = el("div","row" + (isOk ? "" : " err"));
       var main = el("div","row-main");
       main.appendChild(el("div","row-title",
         '<span class="tag">' + (isOk ? "OK" : "ERREUR") + '</span>' + escapeHtml(c.checkName)));
       main.appendChild(el("div","row-detail", escapeHtml(c.detail || "")));
       row.appendChild(main);
-      row.appendChild(el("div","row-time", timeAgo(c.checkedAt)));
+      row.appendChild(timeEl(c.checkedAt));
       list.appendChild(row);
     });
-    return { ok: allOk, hasData:true };
+    count.textContent = okCount + "/" + checks.length;
+    return { ok: okCount === checks.length, hasData:true, okCount:okCount, total:checks.length };
   }
 
   function renderPlays(plays){
@@ -332,7 +397,7 @@
       if(p.langue) detailBits.push(p.langue.toUpperCase());
       main.appendChild(el("div","row-detail", escapeHtml(detailBits.join(" · "))));
       row.appendChild(main);
-      row.appendChild(el("div","row-time", timeAgo(p.happenedAt)));
+      row.appendChild(timeEl(p.happenedAt));
       list.appendChild(row);
     });
   }
@@ -354,7 +419,7 @@
         '<span class="tag">' + escapeHtml(e.workflowName || "Workflow") + '</span>' + escapeHtml(e.nodeName || "")));
       main.appendChild(el("div","row-detail", escapeHtml(e.message || "")));
       row.appendChild(main);
-      row.appendChild(el("div","row-time", timeAgo(e.happenedAt)));
+      row.appendChild(timeEl(e.happenedAt));
       list.appendChild(row);
     });
   }
@@ -365,31 +430,54 @@
     });
   }
 
-  function setHero(ok, hasIncidentLog){
+  function setHero(state, info){
+    info = info || {};
     var status = document.getElementById("heroStatus");
-    var dot = document.getElementById("heroDot");
     var sub = document.getElementById("heroSub");
-    if(ok){
+    if(state === "ok"){
       status.className = "hero-status ok";
-      status.innerHTML = '<span class="dot ok" id="heroDot"></span>Opérationnel';
-      sub.textContent = "Tous les systèmes répondent normalement";
+      status.innerHTML = '<span class="dot ok"></span>Opérationnel';
+      sub.textContent = info.total
+        ? (info.okCount + "/" + info.total + " systèmes · surveillance active")
+        : "Tous les systèmes répondent normalement";
+    } else if(state === "incident"){
+      status.className = "hero-status err";
+      status.innerHTML = '<span class="dot err"></span>Incident';
+      sub.textContent = info.okCount + "/" + info.total + " systèmes opérationnels";
+    } else if(state === "stale"){
+      status.className = "hero-status warn";
+      status.innerHTML = '<span class="dot warn"></span>Surveillance en retard';
+      sub.textContent = "Dernier relevé " + (timeAgo(info.newestIso) || "inconnu")
+        + " — le contrôle horaire est peut-être arrêté";
     } else {
       status.className = "hero-status err";
-      status.innerHTML = '<span class="dot err" id="heroDot"></span>Incident';
-      sub.textContent = "Un ou plusieurs systèmes ne répondent pas";
+      status.innerHTML = '<span class="dot err"></span>Poste injoignable';
+      sub.textContent = "Impossible de contacter le Watchtower";
     }
   }
 
-  function setHeroError(){
-    var status = document.getElementById("heroStatus");
-    var sub = document.getElementById("heroSub");
-    status.className = "hero-status err";
-    status.innerHTML = '<span class="dot err"></span>Poste injoignable';
-    sub.textContent = "Impossible de contacter le Watchtower";
+  function setRefreshing(on){
+    isRefreshing = on;
+    var btn = document.getElementById("refreshBtn");
+    if(on){
+      btn.disabled = true;
+      document.getElementById("refreshLabel").innerHTML =
+        '<span class="refresh-spin"></span>Actualisation…';
+    } else {
+      btn.disabled = false;
+    }
+  }
+
+  function setLastRefresh(iso){
+    document.getElementById("refreshLabel").innerHTML =
+      'Actualisé <span id="lastRefresh" data-iso="' + (iso || "") + '">'
+      + (timeAgo(iso) || "à l'instant") + '</span> · appuyer pour rafraîchir';
   }
 
   function refresh(){
-    fetch(STATUS_URL, { method: "GET" })
+    if(isRefreshing) return;
+    setRefreshing(true);
+    fetch(STATUS_URL, { method: "GET", cache: "no-store" })
       .then(function(r){
         if(!r.ok) throw new Error("HTTP " + r.status);
         return r.json();
@@ -398,16 +486,48 @@
         var checksResult = renderChecks(data.checks);
         renderPlays(data.plays);
         renderErrors(data.errors);
-        setHero(checksResult.ok);
-        document.getElementById("lastRefresh").textContent = timeAgo(data.generatedAt) || "à l'instant";
+        var newest = newestCheckedAt(data.checks);
+        var stale = newest > 0 && (Date.now() - newest) > STALE_MS;
+        if(stale){
+          setHero("stale", { newestIso: new Date(newest).toISOString() });
+        } else if(checksResult.ok){
+          setHero("ok", checksResult);
+        } else {
+          setHero("incident", checksResult);
+        }
+        setLastRefresh(data.generatedAt);
       })
       .catch(function(){
-        setHeroError();
+        setHero("unreachable");
+        document.getElementById("refreshLabel").textContent = "Hors ligne · appuyer pour réessayer";
+      })
+      .then(function(){
+        setRefreshing(false);
       });
   }
 
+  function startPolling(){
+    if(!pollTimer) pollTimer = setInterval(refresh, REFRESH_MS);
+  }
+  function stopPolling(){
+    if(pollTimer){ clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  // Heures relatives qui s'actualisent sans refetch
+  setInterval(refreshTimes, TICK_MS);
+
+  // Économie de batterie : pause quand l'app est cachée, refresh au retour
+  document.addEventListener("visibilitychange", function(){
+    if(document.hidden){ stopPolling(); }
+    else { refresh(); startPolling(); }
+  });
+  window.addEventListener("focus", function(){ if(!document.hidden) refresh(); });
+
+  // Rafraîchissement manuel
+  document.getElementById("refreshBtn").addEventListener("click", refresh);
+
   refresh();
-  setInterval(refresh, REFRESH_MS);
+  startPolling();
 
   // --- OneSignal push ---
   window.OneSignalDeferred = window.OneSignalDeferred || [];
