@@ -245,6 +245,54 @@
   }
   .toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* Fiche détail par système (bottom-sheet) */
+  .modal-backdrop{
+    position: fixed; inset: 0;
+    background: rgba(8,6,5,0.62);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+  }
+  .modal-backdrop.show{ opacity: 1; pointer-events: auto; }
+  .sheet{
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    margin: 0 auto;
+    max-width: 720px;
+    background: linear-gradient(180deg, rgba(201,162,75,0.05), transparent 40%), var(--surface);
+    border: 1px solid var(--hairline-strong);
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    padding: 20px 20px calc(26px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(101%);
+    transition: transform 0.28s cubic-bezier(0.22,0.61,0.36,1);
+    max-height: 86vh; overflow-y: auto;
+  }
+  .modal-backdrop.show .sheet{ transform: translateY(0); }
+  .sheet-grip{ width: 36px; height: 4px; border-radius: 2px; background: var(--hairline-strong); margin: -6px auto 14px; }
+  .sheet-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .sheet-title{ font-family: var(--serif); font-size: 20px; color: var(--text); }
+  .sheet-sub{ color: var(--text-muted); font-size: 13px; margin-top: 5px; }
+  .sheet-close{ background:none; border:none; color:var(--text-muted); font-size:22px; line-height:1; cursor:pointer; padding:2px 6px; flex:none; }
+  .pill{ display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:0.5px; padding:2px 8px; border-radius:4px; border:1px solid var(--hairline-strong); margin-bottom:6px; }
+  .pill.ok{ color:var(--ok); border-color: rgba(139,160,124,0.5); background: rgba(139,160,124,0.08); }
+  .pill.err{ color:var(--err); border-color: rgba(179,84,58,0.5); background: rgba(179,84,58,0.08); }
+  .stat-row{ display:flex; gap:10px; margin:18px 0 4px; }
+  .stat{ flex:1; background: rgba(201,162,75,0.05); border:1px solid var(--hairline); border-radius:10px; padding:11px 12px; }
+  .stat-val{ font-family:var(--serif); font-size:20px; color:var(--gold); }
+  .stat-lbl{ font-size:11px; color:var(--text-muted); margin-top:3px; }
+  .sheet-section-title{ font-family:var(--serif); font-size:14px; color:var(--text); margin:20px 0 10px; }
+  .timeline{ display:flex; gap:3px; flex-wrap:wrap; align-items:flex-end; }
+  .tl{ width:9px; height:22px; border-radius:2px; background:var(--hairline); flex:none; }
+  .tl.ok{ background:var(--ok); } .tl.err{ background:var(--err); }
+  .change{ display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-top:1px solid var(--hairline); font-size:13px; }
+  .change:first-child{ border-top:none; }
+  .change-to.ok{ color:var(--ok); } .change-to.err{ color:var(--err); }
+  .change-time{ font-family:var(--mono); font-size:11px; color:var(--text-muted); white-space:nowrap; }
+  .sheet-muted{ color:var(--text-muted); font-size:13px; font-style:italic; }
+  .row.tappable{ cursor:pointer; }
+  .row.tappable:active{ opacity:0.7; }
+
   /* Graphe de disponibilité */
   .chart-metric{ font-family: var(--serif); font-size: 20px; color: var(--gold); }
   .chart-metric small{ font-family: var(--sans); font-size: 11px; color: var(--text-muted); margin-left: 4px; letter-spacing: 0.3px; }
@@ -398,6 +446,21 @@
 
 </div>
 
+<div class="modal-backdrop" id="detailModal" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <div style="min-width:0">
+        <span class="pill" id="sheetPill"></span>
+        <div class="sheet-title" id="sheetTitle"></div>
+        <div class="sheet-sub" id="sheetSub"></div>
+      </div>
+      <button class="sheet-close" id="sheetClose" type="button" aria-label="Fermer">&times;</button>
+    </div>
+    <div id="sheetContent"></div>
+  </div>
+</div>
+
 <script>
 (function(){
   "use strict";
@@ -409,6 +472,7 @@
 
   var pollTimer = null;
   var isRefreshing = false;
+  var lastChecks = [];
   var CACHE_KEY = "aq-watchtower-cache";
   var COLLAPSE_KEY = "aq-watchtower-collapsed";
   var HIST_KEY = "aq-watchtower-history";
@@ -488,6 +552,74 @@
       + '<div class="chart-axis"><span>' + (timeAgo(series[0].t) || "début") + '</span><span>maintenant</span></div>';
     var cur = series[n - 1];
     metric.innerHTML = Math.round(cur.ok / cur.total * 100) + '% <small>maintenant</small>';
+  }
+
+  function openDetail(name){
+    var check = null;
+    for(var i = 0; i < lastChecks.length; i++){
+      if(lastChecks[i].checkName === name){ check = lastChecks[i]; break; }
+    }
+    var hist = history[name] || [];
+    var isOk = check ? check.status === "ok" : (hist.length ? !!hist[hist.length - 1].s : true);
+
+    var pill = document.getElementById("sheetPill");
+    pill.className = "pill " + (isOk ? "ok" : "err");
+    pill.textContent = isOk ? "OPÉRATIONNEL" : "EN PANNE";
+    document.getElementById("sheetTitle").textContent = name;
+    var subBits = [];
+    if(check && check.detail) subBits.push(check.detail);
+    if(check && check.checkedAt) subBits.push("vérifié " + (timeAgo(check.checkedAt) || "à l'instant"));
+    document.getElementById("sheetSub").textContent = subBits.join("  ·  ");
+
+    var okc = hist.reduce(function(a, p){ return a + (p.s ? 1 : 0); }, 0);
+    var pct = hist.length ? Math.round(okc / hist.length * 100) : (isOk ? 100 : 0);
+    var lastChange = null;
+    for(var j = hist.length - 1; j > 0; j--){
+      if(hist[j].s !== hist[j - 1].s){ lastChange = hist[j]; break; }
+    }
+    var changeTxt = lastChange ? (timeAgo(lastChange.t) || "à l'instant") : "aucun";
+
+    var html = '<div class="stat-row">'
+      + '<div class="stat"><div class="stat-val">' + pct + '%</div><div class="stat-lbl">disponibilité</div></div>'
+      + '<div class="stat"><div class="stat-val">' + hist.length + '</div><div class="stat-lbl">relevés</div></div>'
+      + '<div class="stat"><div class="stat-val" style="font-size:14px">' + changeTxt + '</div><div class="stat-lbl">dernier changement</div></div>'
+      + '</div>';
+
+    if(hist.length){
+      html += '<div class="sheet-section-title">Historique des relevés</div><div class="timeline">';
+      hist.forEach(function(p){
+        html += '<span class="tl ' + (p.s ? "ok" : "err") + '" title="' + fullTime(p.t) + '"></span>';
+      });
+      html += '</div>';
+    }
+
+    var changes = [];
+    for(var k = 1; k < hist.length; k++){
+      if(hist[k].s !== hist[k - 1].s) changes.push({ t: hist[k].t, to: hist[k].s });
+    }
+    changes.reverse();
+    html += '<div class="sheet-section-title">Changements récents</div>';
+    if(changes.length){
+      changes.slice(0, 8).forEach(function(ch){
+        html += '<div class="change"><span class="change-to ' + (ch.to ? "ok" : "err") + '">'
+          + (ch.to ? "Rétabli" : "Tombé en panne") + '</span><span class="change-time">'
+          + (timeAgo(ch.t) || "à l'instant") + '</span></div>';
+      });
+    } else {
+      html += '<div class="sheet-muted">Aucun changement enregistré'
+        + (hist.length ? ' — stable sur les ' + hist.length + ' derniers relevés.' : '.') + '</div>';
+    }
+
+    document.getElementById("sheetContent").innerHTML = html;
+    var modal = document.getElementById("detailModal");
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeDetail(){
+    var modal = document.getElementById("detailModal");
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
   }
   function historyStrip(name){
     var arr = history[name] || [];
@@ -592,6 +724,7 @@
   function renderChecks(checks){
     var list = document.getElementById("checksList");
     var count = document.getElementById("checksCount");
+    lastChecks = checks || [];
     list.innerHTML = "";
     if(!checks || checks.length === 0){
       list.appendChild(el("div","empty","Aucun relevé pour l'instant."));
@@ -603,7 +736,9 @@
     checks.forEach(function(c){
       var isOk = c.status === "ok";
       if(isOk) okCount++;
-      var row = el("div","row" + (isOk ? "" : " err"));
+      var row = el("div","row tappable" + (isOk ? "" : " err"));
+      row.title = "Voir le détail";
+      (function(name){ row.addEventListener("click", function(){ openDetail(name); }); })(c.checkName);
       var main = el("div","row-main");
       main.appendChild(el("div","row-title",
         '<span class="tag">' + (isOk ? "OK" : "ERREUR") + '</span>' + escapeHtml(c.checkName)));
@@ -820,6 +955,15 @@
 
   // Rafraîchissement manuel
   document.getElementById("refreshBtn").addEventListener("click", refresh);
+
+  // Fiche détail : fermeture
+  document.getElementById("sheetClose").addEventListener("click", closeDetail);
+  document.getElementById("detailModal").addEventListener("click", function(e){
+    if(e.target === this) closeDetail();
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") closeDetail();
+  });
 
   // Sections repliables (état mémorisé par appareil)
   function loadCollapsed(){
