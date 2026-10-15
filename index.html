@@ -351,6 +351,15 @@
     overflow-wrap: anywhere;
   }
 
+  /* Résumé quotidien rédigé par Qwen */
+  .ai-headline{ font-family: var(--serif); font-size: 16px; line-height: 1.35; color: var(--text); margin: 4px 0 6px; }
+  .ai-headline.err{ color: var(--err); }
+  .ai-summary{ font-size: 13px; line-height: 1.5; color: var(--text-muted); margin: 0 0 10px; overflow-wrap: anywhere; }
+  .ai-actions{ margin: 0 0 8px; padding: 0; list-style: none; }
+  .ai-actions li{ font-size: 13px; color: var(--text); padding: 6px 0 6px 14px; border-top: 1px solid var(--hairline); position: relative; }
+  .ai-actions li::before{ content: ""; position: absolute; left: 0; top: 13px; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+  .ai-meta{ font-family: var(--mono); font-size: 11px; color: var(--text-muted); padding-bottom: 12px; }
+
   footer{
     text-align:center;
     margin-top: 48px;
@@ -405,6 +414,14 @@
   </div>
 
   <div class="banner" id="banner" role="alert"></div>
+
+  <section class="band" data-key="ai">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Le point du matin</span></span>
+      <span class="band-count" id="aiCount">—</span>
+    </div>
+    <div class="band-body" id="aiBody"><div class="empty">Le premier résumé arrive demain matin.</div></div>
+  </section>
 
   <section class="band" data-key="chart">
     <div class="band-head" role="button" tabindex="0" aria-expanded="true">
@@ -953,6 +970,39 @@
   });
   window.addEventListener("focus", function(){ if(!document.hidden) refresh(); });
 
+  // --- Résumé quotidien (écrit chaque matin par GitHub Actions + Qwen) ---
+  var AI_URL = "https://raw.githubusercontent.com/vollenweiderbjorn-code/aventicum-watchtower/main/data/ai-summary.json";
+
+  function renderAi(d){
+    var body = document.getElementById("aiBody");
+    var count = document.getElementById("aiCount");
+    var lvl = d.level === "ok" ? "OK" : (d.level === "unreachable" ? "INJOIGNABLE" : "INCIDENT");
+    var bad = d.level !== "ok";
+    count.textContent = lvl;
+    var html = '<div class="ai-headline' + (bad ? ' err' : '') + '">' + escapeHtml(d.headline || "") + '</div>'
+      + '<p class="ai-summary">' + escapeHtml(d.summary || "") + '</p>';
+    if(d.actions && d.actions.length){
+      html += '<ul class="ai-actions">';
+      d.actions.forEach(function(a){ html += '<li>' + escapeHtml(a) + '</li>'; });
+      html += '</ul>';
+    }
+    html += '<div class="ai-meta">Rédigé ' + (timeAgo(d.generatedAt) || "à l'instant")
+      + (d.model ? ' par ' + escapeHtml(d.model) : '') + '</div>';
+    body.innerHTML = html;
+  }
+
+  function loadAi(){
+    fetch(AI_URL, { cache: "no-cache" })
+      .then(function(r){
+        if(!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function(d){
+        if(d && d.headline && d.summary) renderAi(d);
+      })
+      .catch(function(){ /* pas encore de résumé : on garde le message par défaut */ });
+  }
+
   // Rafraîchissement manuel
   document.getElementById("refreshBtn").addEventListener("click", refresh);
 
@@ -994,6 +1044,7 @@
   window.addEventListener("offline", function(){ setBanner("Hors ligne — reconnexion en attente"); });
   window.addEventListener("online", function(){ setBanner(""); refresh(); });
 
+  loadAi();
   refresh();
   startPolling();
 
