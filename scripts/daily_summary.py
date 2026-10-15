@@ -34,7 +34,14 @@ BASE_URL = os.environ.get(
     "QWEN_BASE_URL", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 ).rstrip("/")
 MODEL = os.environ.get("QWEN_MODEL", "qwen3.8-flash")
-API_KEY = os.environ.get("DASHSCOPE_API_KEY", "")
+# .strip() : un espace ou un retour à la ligne collé avec la clé la ferait refuser (401)
+API_KEY = os.environ.get("DASHSCOPE_API_KEY", "").strip()
+
+# Autres régions d'Alibaba, testées uniquement pour diagnostiquer un 401
+OTHER_REGIONS = {
+    "Chine (Beijing)": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "Etats-Unis": "https://dashscope-us.aliyuncs.com/compatible-mode/v1",
+}
 
 OUT_PATH = Path(__file__).resolve().parent.parent / "data" / "ai-summary.json"
 
@@ -128,6 +135,30 @@ SYSTEM_PROMPT = (
 )
 
 
+def diagnose_401():
+    """Aide à comprendre un 401 sans jamais afficher la clé."""
+    print(
+        f"Diagnostic : la clé fait {len(API_KEY)} caractères, "
+        f"préfixe '{API_KEY[:5]}', serveur utilisé : {BASE_URL}",
+        file=sys.stderr,
+    )
+    for name, base in OTHER_REGIONS.items():
+        if base == BASE_URL:
+            continue
+        req = urllib.request.Request(
+            f"{base}/models", headers={"Authorization": f"Bearer {API_KEY}"}
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=20) as r:
+                code = r.status
+        except urllib.error.HTTPError as e:
+            code = e.code
+        except Exception as e:  # réseau, délai...
+            code = type(e).__name__
+        verdict = "CLE ACCEPTEE ICI" if code == 200 else "refusee"
+        print(f"  region {name} : HTTP {code} ({verdict})", file=sys.stderr)
+
+
 def call_qwen(digest):
     url = f"{BASE_URL}/chat/completions"
     payload = {
@@ -157,6 +188,8 @@ def call_qwen(digest):
         except urllib.error.HTTPError as e:
             detail = e.read().decode("utf-8", "replace")[:300]
             last_err = f"HTTP {e.code}: {detail}"
+            if e.code == 401:
+                diagnose_401()
             # 4xx autres que 429 : inutile de réessayer (clé invalide, quota épuisé...)
             if e.code not in (429, 500, 502, 503, 504):
                 break
