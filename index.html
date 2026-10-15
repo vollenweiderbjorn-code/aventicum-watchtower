@@ -32,6 +32,7 @@
     --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color-scheme: dark;
     box-sizing:border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -53,10 +54,12 @@
     *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
   }
 
+  :focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+
   .wrap{
     max-width: 720px;
     margin: 0 auto;
-    padding: 28px 20px 64px;
+    padding: 28px 20px 110px;
   }
 
   header.masthead{
@@ -72,8 +75,8 @@
   }
   .eyebrow{
     font-family:var(--sans);
-    font-size: 11px;
-    letter-spacing: 3px;
+    font-size: 12px;
+    letter-spacing: 1.5px;
     color: var(--text-muted);
     margin: 6px 0 0;
   }
@@ -121,33 +124,51 @@
   .row.warn .row-title{ color: var(--warn); }
   .row.warn .tag{ color: var(--warn); border-color: rgba(201,138,58,0.5); }
 
+  /* Relevé chiffré : trois nombres séparés par des filets, sans cartes */
+  .pulse{
+    display:grid; grid-template-columns: repeat(3, 1fr);
+    margin: 26px 0 0;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .pulse-item{ padding: 14px 6px 13px; text-align:center; border-left: 1px solid var(--hairline); min-width:0; }
+  .pulse-item:first-child{ border-left: none; }
+  .pulse-val{ font-family: var(--serif); font-size: 24px; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .pulse-lbl{ font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
   .subscribe-row{
-    display:flex; justify-content:center; margin: 22px 0 4px;
+    display:flex; justify-content:center; margin: 18px 0 2px;
   }
   button.subscribe{
     font-family:var(--sans);
-    font-size: 13px;
-    color: var(--bg);
-    background: var(--gold);
-    border: none;
-    padding: 10px 20px;
+    font-size: 12px;
+    color: var(--gold);
+    background: transparent;
+    border: 1px solid var(--hairline-strong);
+    border-radius: 999px;
+    padding: 8px 16px;
     cursor: pointer;
     letter-spacing: 0.3px;
   }
-  button.subscribe:active{ opacity: 0.85; }
+  button.subscribe:active{ opacity: 0.7; }
   button.subscribe[disabled]{
-    background: transparent;
     color: var(--text-muted);
-    border: 1px solid var(--hairline-strong);
+    border-color: var(--hairline);
+    cursor: default;
   }
 
+  /* Sections à plat, séparées par un filet. Seul le point du matin est mis en valeur. */
   section.band{
-    margin-top: 16px;
-    background: linear-gradient(180deg, rgba(201,162,75,0.04), transparent 60%), var(--surface);
+    margin-top: 30px;
+    border-top: 1px solid var(--hairline-strong);
+    padding: 0 0 6px;
+  }
+  section.band[data-key="ai"]{
+    background: linear-gradient(90deg, rgba(201,162,75,0.10), transparent 75%);
     border: 1px solid var(--hairline);
-    border-radius: 14px;
-    padding: 2px 18px 12px;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+    border-left: 2px solid var(--gold);
+    border-radius: 2px 10px 10px 2px;
+    padding: 0 18px 6px;
   }
   .band-head{
     display:flex;
@@ -229,7 +250,7 @@
   /* Toast */
   .toast{
     position: fixed;
-    left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%) translateY(8px);
     background: var(--surface);
     border: 1px solid var(--hairline-strong);
@@ -239,7 +260,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 60;
+    z-index: 130;
     max-width: 80%;
     text-align: center;
   }
@@ -389,6 +410,136 @@
     animation: spin 0.7s linear infinite;
   }
   @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  /* ---------- Chat avec la tour (Qwen) ---------- */
+  .fab{
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    z-index: 70;
+    display:flex; align-items:center; gap:9px;
+    height: 48px; padding: 0 18px 0 14px;
+    border: none; border-radius: 24px;
+    background: var(--gold); color: #141110;
+    font: 600 13px/1 var(--sans); letter-spacing: 0.2px;
+    cursor: pointer;
+    box-shadow: 0 8px 26px rgba(0,0,0,0.55);
+    transition: transform 0.15s ease, opacity 0.2s ease;
+  }
+  .fab svg{ width: 20px; height: 20px; flex: none; }
+  .fab:active{ transform: scale(0.97); }
+  .fab.hide{ opacity: 0; pointer-events: none; transform: translateY(8px); }
+
+  .chat-backdrop{
+    position: fixed; inset: 0;
+    background: rgba(8,6,5,0.66);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 110;
+  }
+  .chat-backdrop.show{ opacity: 1; pointer-events: auto; }
+  .chat{
+    position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto;
+    max-width: 720px;
+    height: min(90vh, 760px);
+    height: min(90dvh, 760px);
+    display: flex; flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--hairline-strong); border-bottom: none;
+    border-radius: 16px 16px 0 0;
+    transform: translateY(101%);
+    transition: transform 0.28s cubic-bezier(0.22,0.61,0.36,1);
+  }
+  .chat-backdrop.show .chat{ transform: translateY(0); }
+  .chat-head{
+    display:flex; align-items:center; gap:10px;
+    padding: 14px 14px 12px 18px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .chat-title{ flex: 1; min-width: 0; font-family: var(--serif); font-size: 17px; color: var(--text); }
+  .chat-title small{ display:block; font-family: var(--sans); font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .seg{ display:flex; border: 1px solid var(--hairline-strong); border-radius: 999px; padding: 2px; flex: none; }
+  .seg button{
+    background: none; border: none; color: var(--text-muted);
+    font: 12px/1 var(--sans); padding: 7px 11px; border-radius: 999px; cursor: pointer;
+  }
+  .seg button[aria-checked="true"]{ background: var(--gold); color: #141110; font-weight: 600; }
+  .chat-x{
+    background: none; border: none; color: var(--text-muted);
+    font-size: 22px; line-height: 1; padding: 6px 8px; cursor: pointer; flex: none;
+  }
+  .chat-log{
+    flex: 1; overflow-y: auto; overscroll-behavior: contain;
+    padding: 16px 18px; display:flex; flex-direction: column; gap: 14px;
+  }
+  .msg{ max-width: 90%; font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+  .msg.user{
+    align-self: flex-end; white-space: pre-wrap;
+    background: rgba(201,162,75,0.14); border: 1px solid var(--hairline-strong);
+    border-radius: 14px 14px 4px 14px; padding: 9px 13px;
+  }
+  .msg.bot{ align-self: flex-start; color: var(--text); padding-left: 12px; border-left: 2px solid var(--gold-dim); }
+  .msg.bot p{ margin: 0 0 8px; }
+  .msg.bot p:last-child, .msg.bot ul:last-child, .msg.bot ol:last-child{ margin-bottom: 0; }
+  .msg.bot ul, .msg.bot ol{ margin: 0 0 8px; padding-left: 20px; }
+  .msg.bot li{ margin-bottom: 3px; }
+  .msg.bot h4{ font-family: var(--serif); font-size: 14px; font-weight: normal; color: var(--gold); margin: 10px 0 4px; }
+  .msg.bot code{ font-family: var(--mono); font-size: 12px; background: rgba(201,162,75,0.12); padding: 1px 5px; border-radius: 4px; }
+  .msg.err{
+    align-self: flex-start; font-size: 13px; color: var(--err);
+    border: 1px solid rgba(179,84,58,0.5); background: rgba(179,84,58,0.07);
+    border-radius: 10px; padding: 8px 12px;
+  }
+  .msg-meta{ font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 6px; }
+  .typing{ display:inline-flex; gap: 4px; padding: 6px 0 6px 12px; align-self: flex-start; }
+  .typing i{ width: 6px; height: 6px; border-radius: 50%; background: var(--gold-dim); animation: blink 1.2s ease-in-out infinite; }
+  .typing i:nth-child(2){ animation-delay: 0.15s; }
+  .typing i:nth-child(3){ animation-delay: 0.3s; }
+  @keyframes blink{ 0%,80%,100%{ opacity: 0.25; } 40%{ opacity: 1; } }
+
+  .chat-empty{ margin: auto 0; }
+  .chat-empty-title{ font-family: var(--serif); font-size: 20px; line-height: 1.3; color: var(--text); margin: 0 0 6px; }
+  .chat-empty-text{ font-size: 13px; color: var(--text-muted); margin: 0 0 16px; line-height: 1.5; }
+  .chips{ display:flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .chip{
+    background: none; border: 1px solid var(--hairline-strong); color: var(--text);
+    font: 13px/1.3 var(--sans); padding: 9px 14px; border-radius: 999px; cursor: pointer; text-align: left;
+  }
+  .chip:active{ background: rgba(201,162,75,0.14); }
+
+  .gate{ margin: auto 0; }
+  .gate-title{ font-family: var(--serif); font-size: 20px; margin: 0 0 6px; color: var(--text); }
+  .gate-text{ font-size: 13px; color: var(--text-muted); margin: 0 0 14px; line-height: 1.5; }
+  .gate input{
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--hairline-strong); border-radius: 10px;
+    padding: 11px 13px; font: 16px var(--mono); margin-bottom: 10px;
+  }
+  .gate-btn{
+    background: var(--gold); color: #141110; border: none; border-radius: 999px;
+    font: 600 13px/1 var(--sans); padding: 12px 22px; cursor: pointer;
+  }
+  .gate-err{ color: var(--err); font-size: 13px; margin: 12px 0 0; }
+
+  .composer{
+    display:flex; gap: 8px; align-items: flex-end;
+    padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--hairline);
+  }
+  .composer textarea{
+    flex: 1; min-width: 0; resize: none; min-height: 44px; max-height: 120px;
+    background: var(--bg); color: var(--text);
+    border: 1px solid var(--hairline-strong); border-radius: 14px;
+    padding: 11px 13px; font: 16px/1.3 var(--sans);
+  }
+  .composer textarea::placeholder{ color: var(--text-muted); }
+  .send{
+    width: 44px; height: 44px; flex: none; border: none; border-radius: 50%;
+    background: var(--gold); color: #141110; cursor: pointer;
+    display:grid; place-items: center;
+  }
+  .send svg{ width: 18px; height: 18px; }
+  .send:disabled{ opacity: 0.35; cursor: default; }
 </style>
 </head>
 <body>
@@ -400,13 +551,19 @@
 
   <header class="masthead">
     <p class="wordmark">AVENTICUM QUEST</p>
-    <p class="eyebrow">OPERATIO AQUILA — WATCHTOWER</p>
+    <p class="eyebrow">Operatio Aquila, poste de contrôle</p>
     <div class="masthead-rule"></div>
   </header>
 
   <div class="hero" role="status" aria-live="polite">
     <p class="hero-status ok" id="heroStatus"><span class="dot ok" id="heroDot"></span>Vérification…</p>
     <p class="hero-sub" id="heroSub">Connexion au poste de contrôle</p>
+  </div>
+
+  <div class="pulse" aria-label="Chiffres récents">
+    <div class="pulse-item"><div class="pulse-val" id="pulseSys">—</div><div class="pulse-lbl">systèmes en ligne</div></div>
+    <div class="pulse-item"><div class="pulse-val" id="pulsePlays">—</div><div class="pulse-lbl">parties récentes</div></div>
+    <div class="pulse-item"><div class="pulse-val" id="pulseBuys">—</div><div class="pulse-lbl">achats récents</div></div>
   </div>
 
   <div class="subscribe-row">
@@ -461,6 +618,33 @@
     </button>
   </footer>
 
+</div>
+
+<button class="fab" id="chatFab" type="button" aria-label="Demander à la tour">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+    <path d="M7 21V9M17 21V9M5 9V4h2.5v2H10V4h4v2h2.5V4H19v5zM5 9h14M10 21v-5a2 2 0 0 1 4 0v5M4 21h16"/>
+  </svg>
+  Demander à la tour
+</button>
+
+<div class="chat-backdrop" id="chatModal" aria-hidden="true">
+  <div class="chat" id="chatPanel" role="dialog" aria-modal="true" aria-labelledby="chatTitle">
+    <div class="chat-head">
+      <div class="chat-title" id="chatTitle">Demander à la tour<small>Qwen lit l'état du poste de contrôle</small></div>
+      <div class="seg" role="radiogroup" aria-label="Mode de réponse">
+        <button type="button" role="radio" data-mode="rapide" aria-checked="true" title="Réponses rapides">Rapide</button>
+        <button type="button" role="radio" data-mode="precis" aria-checked="false" title="Plus lent, plus fin">Précis</button>
+      </div>
+      <button class="chat-x" id="chatClose" type="button" aria-label="Fermer le chat">&times;</button>
+    </div>
+    <div class="chat-log" id="chatLog" aria-live="polite"></div>
+    <form class="composer" id="chatForm">
+      <textarea id="chatInput" rows="1" placeholder="Pose ta question" aria-label="Ta question" maxlength="1500"></textarea>
+      <button class="send" id="chatSend" type="submit" aria-label="Envoyer" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </button>
+    </form>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="detailModal" aria-hidden="true">
@@ -915,6 +1099,11 @@
       setHero("incident", checksResult);
     }
     setLastRefresh(data.generatedAt);
+    var pl = data.plays || [];
+    var buys = pl.filter(function(p){ return p.eventType === "achat"; }).length;
+    document.getElementById("pulseSys").textContent = checksResult.hasData ? (checksResult.okCount + "/" + checksResult.total) : "—";
+    document.getElementById("pulsePlays").textContent = String(pl.length - buys);
+    document.getElementById("pulseBuys").textContent = String(buys);
   }
 
   function showCachedFallback(){
@@ -1012,7 +1201,10 @@
     if(e.target === this) closeDetail();
   });
   document.addEventListener("keydown", function(e){
-    if(e.key === "Escape") closeDetail();
+    if(e.key === "Escape"){
+      if(document.getElementById("chatModal").classList.contains("show")) closeChat();
+      else closeDetail();
+    }
   });
 
   // Sections repliables (état mémorisé par appareil)
@@ -1043,6 +1235,262 @@
   // Détection connexion
   window.addEventListener("offline", function(){ setBanner("Hors ligne — reconnexion en attente"); });
   window.addEventListener("online", function(){ setBanner(""); refresh(); });
+
+  // --- Chat avec Qwen (via n8n : la clé Alibaba n'est jamais dans cette page) ---
+  var CHAT_URL = "https://n8n-production-9874d.up.railway.app/webhook/aventicum-watchtower-chat";
+  var CODE_KEY = "aq-watchtower-chat-code";
+  var MODE_KEY = "aq-watchtower-chat-mode";
+  var MAX_SENT = 12;                  // derniers messages envoyés au modèle
+  var CHAT_TIMEOUT_MS = 70000;
+  var SUGGESTIONS = [
+    "Combien de parties cette semaine ?",
+    "Y a-t-il un problème à régler ?",
+    "Résume les incidents récents",
+    "Quelles langues sont les plus jouées ?"
+  ];
+
+  var chatModal = document.getElementById("chatModal");
+  var chatPanel = document.getElementById("chatPanel");
+  var chatLog = document.getElementById("chatLog");
+  var chatInput = document.getElementById("chatInput");
+  var chatSend = document.getElementById("chatSend");
+  var chatFab = document.getElementById("chatFab");
+  var chatMsgs = [];
+  var chatBusy = false;
+  var chatMode = lsGet(MODE_KEY) === "precis" ? "precis" : "rapide";
+
+  function inlineMd(s){
+    return s.replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  }
+  // Markdown minimal. Le texte est échappé AVANT d'être mis en forme.
+  function mdLite(text){
+    var lines = escapeHtml(text).replace(/\r/g, "").split("\n");
+    var out = [], list = null, para = [];
+    function flushPara(){ if(para.length){ out.push("<p>" + inlineMd(para.join("<br>")) + "</p>"); para = []; } }
+    function closeList(){ if(list){ out.push("</" + list + ">"); list = null; } }
+    function item(kind, txt){
+      flushPara();
+      if(list !== kind){ closeList(); out.push("<" + kind + ">"); list = kind; }
+      out.push("<li>" + inlineMd(txt) + "</li>");
+    }
+    lines.forEach(function(line){
+      var m;
+      if(!line.trim()){ flushPara(); closeList(); return; }
+      if((m = /^\s*[-*•]\s+(.*)$/.exec(line))){ item("ul", m[1]); return; }
+      if((m = /^\s*\d+[.)]\s+(.*)$/.exec(line))){ item("ol", m[1]); return; }
+      if((m = /^#{1,4}\s+(.*)$/.exec(line))){ flushPara(); closeList(); out.push("<h4>" + inlineMd(m[1]) + "</h4>"); return; }
+      closeList(); para.push(line);
+    });
+    flushPara(); closeList();
+    return out.join("");
+  }
+
+  function scrollLog(){ chatLog.scrollTop = chatLog.scrollHeight; }
+  function addMsg(kind, content, meta){
+    var d = document.createElement("div");
+    d.className = "msg " + kind;
+    if(kind === "bot"){
+      d.innerHTML = mdLite(content);
+      if(meta){ var m = document.createElement("div"); m.className = "msg-meta"; m.textContent = meta; d.appendChild(m); }
+    } else {
+      d.textContent = content;
+    }
+    chatLog.appendChild(d);
+    scrollLog();
+    return d;
+  }
+  function addTyping(){
+    var t = document.createElement("div");
+    t.className = "typing";
+    t.setAttribute("aria-label", "La tour réfléchit");
+    t.innerHTML = "<i></i><i></i><i></i>";
+    chatLog.appendChild(t);
+    scrollLog();
+    return t;
+  }
+  function removeNode(n){ if(n && n.parentNode) n.parentNode.removeChild(n); }
+
+  function showEmpty(){
+    chatLog.innerHTML = "";
+    var box = document.createElement("div");
+    box.className = "chat-empty";
+    box.innerHTML = '<p class="chat-empty-title">Que veux-tu savoir sur Aventicum Quest ?</p>'
+      + '<p class="chat-empty-text">Je lis les relevés, les parties et les incidents récents. Les adresses email et les codes ne me sont jamais transmis.</p>';
+    var chips = document.createElement("div");
+    chips.className = "chips";
+    SUGGESTIONS.forEach(function(s){
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "chip"; b.textContent = s;
+      b.addEventListener("click", function(){ sendChat(s); });
+      chips.appendChild(b);
+    });
+    box.appendChild(chips);
+    chatLog.appendChild(box);
+  }
+
+  function renderGate(msg){
+    chatLog.innerHTML = "";
+    var f = document.createElement("form");
+    f.className = "gate";
+    f.innerHTML = '<p class="gate-title">Code d\'accès</p>'
+      + '<p class="gate-text">Ce chat utilise ton quota Qwen. Entre le code une fois, il reste sur cet appareil.</p>'
+      + '<input id="gateInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Code d\'accès">'
+      + '<button class="gate-btn" type="submit">Valider</button>'
+      + (msg ? '<p class="gate-err" role="alert">' + escapeHtml(msg) + '</p>' : '');
+    f.addEventListener("submit", function(e){
+      e.preventDefault();
+      var v = document.getElementById("gateInput").value.trim();
+      if(!v) return;
+      lsSet(CODE_KEY, v);
+      showEmpty();
+      updateSend();
+      chatInput.focus();
+    });
+    chatLog.appendChild(f);
+    updateSend();
+  }
+
+  function hasCode(){ return !!lsGet(CODE_KEY); }
+  function updateSend(){
+    chatSend.disabled = chatBusy || !hasCode() || !chatInput.value.trim();
+    chatInput.disabled = !hasCode();
+  }
+  function autosize(){
+    chatInput.style.height = "auto";
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + "px";
+  }
+
+  function chatFail(status, data, userNode, text){
+    // le message n'est pas parti : on le remet dans la zone de saisie pour réessayer
+    chatMsgs.pop();
+    removeNode(userNode);
+    chatInput.value = text;
+    autosize();
+    if(status === 401){
+      lsSet(CODE_KEY, "");
+      renderGate("Code refusé. Vérifie-le et recommence.");
+      return;
+    }
+    var msg = (data && typeof data.error === "string" && data.error) ? data.error : "";
+    if(!msg){
+      msg = status === 0
+        ? "Impossible de joindre la tour. Vérifie ta connexion puis réessaie."
+        : "La tour n'a pas répondu (erreur " + status + "). Réessaie dans un instant.";
+    }
+    addMsg("err", msg);
+  }
+
+  function sendChat(raw){
+    var text = (raw || "").trim();
+    if(!text || chatBusy) return;
+    var code = lsGet(CODE_KEY);
+    if(!code){ renderGate(); return; }
+    var empty = chatLog.querySelector(".chat-empty");
+    if(empty) chatLog.innerHTML = "";
+    chatBusy = true;
+    chatMsgs.push({ role: "user", content: text });
+    var userNode = addMsg("user", text);
+    chatInput.value = "";
+    autosize();
+    updateSend();
+    var typing = addTyping();
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var to = setTimeout(function(){ if(ctrl) ctrl.abort(); }, CHAT_TIMEOUT_MS);
+    var payload = { code: code, mode: chatMode, messages: chatMsgs.slice(-MAX_SENT) };
+
+    // text/plain : requête "simple" pour le navigateur, pas de préflight CORS
+    fetch(CHAT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify(payload),
+      signal: ctrl ? ctrl.signal : undefined
+    })
+      .then(function(r){
+        return r.json().catch(function(){ return {}; }).then(function(d){ return { status: r.status, data: d || {} }; });
+      })
+      .then(function(res){
+        removeNode(typing);
+        var d = res.data;
+        if(res.status === 200 && !d.error && typeof d.reply === "string" && d.reply.trim()){
+          chatMsgs.push({ role: "assistant", content: d.reply });
+          var u = d.usage || {};
+          var tokens = (u.input || 0) + (u.output || 0);
+          addMsg("bot", d.reply, (d.model || "qwen") + (tokens ? " · " + tokens + " jetons" : ""));
+        } else {
+          chatFail(res.status === 200 && d.error ? (d.status || 502) : res.status, d, userNode, text);
+        }
+      })
+      .catch(function(){
+        removeNode(typing);
+        chatFail(0, null, userNode, text);
+      })
+      .then(function(){
+        clearTimeout(to);
+        chatBusy = false;
+        updateSend();
+        if(chatModal.classList.contains("show") && hasCode()) chatInput.focus();
+      });
+  }
+
+  function setMode(m){
+    chatMode = m === "precis" ? "precis" : "rapide";
+    lsSet(MODE_KEY, chatMode);
+    var btns = document.querySelectorAll(".seg button");
+    for(var i = 0; i < btns.length; i++){
+      btns[i].setAttribute("aria-checked", btns[i].getAttribute("data-mode") === chatMode ? "true" : "false");
+    }
+  }
+
+  // Suit le clavier virtuel : le panneau reste au-dessus
+  function fitChat(){
+    var vv = window.visualViewport;
+    if(!vv) return;
+    chatPanel.style.height = Math.min(vv.height * 0.92, 760) + "px";
+    chatPanel.style.bottom = Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + "px";
+  }
+
+  function openChat(){
+    fitChat();
+    chatModal.classList.add("show");
+    chatModal.setAttribute("aria-hidden", "false");
+    chatFab.classList.add("hide");
+    if(!chatLog.children.length){ if(hasCode()) showEmpty(); else renderGate(); }
+    updateSend();
+    setTimeout(function(){
+      var g = document.getElementById("gateInput");
+      if(g) g.focus(); else if(hasCode()) chatInput.focus();
+    }, 300);
+  }
+  function closeChat(){
+    chatModal.classList.remove("show");
+    chatModal.setAttribute("aria-hidden", "true");
+    chatFab.classList.remove("hide");
+    chatFab.focus();
+  }
+
+  chatFab.addEventListener("click", openChat);
+  document.getElementById("chatClose").addEventListener("click", closeChat);
+  chatModal.addEventListener("click", function(e){ if(e.target === this) closeChat(); });
+  document.getElementById("chatForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    sendChat(chatInput.value);
+  });
+  chatInput.addEventListener("input", function(){ autosize(); updateSend(); });
+  chatInput.addEventListener("keydown", function(e){
+    var touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    if(e.key === "Enter" && !e.shiftKey && !e.isComposing && !touch){
+      e.preventDefault();
+      sendChat(chatInput.value);
+    }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".seg button"), function(b){
+    b.addEventListener("click", function(){ setMode(b.getAttribute("data-mode")); });
+  });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", fitChat);
+    window.visualViewport.addEventListener("scroll", fitChat);
+  }
+  setMode(chatMode);
 
   loadAi();
   refresh();
