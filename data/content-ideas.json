@@ -1,0 +1,81 @@
+{
+  "generatedAt": "2026-10-16T06:52:35Z",
+  "model": "qwen3.8-flash",
+  "posts": [
+    {
+      "titre": "Coulisses d'un automne à Avenches",
+      "plateforme": "Instagram",
+      "texte": "Bjorn ajuste les indices de la station trois. Les feuilles tombent sur les pavés romains, rendant le parcours encore plus mystérieux. C'est le moment idéal pour tester votre logique avant que l'hiver n'arrive. Une équipe de quatre amis a résolu l'énigme en deux heures. Et vous, saurez-vous déchiffrer les secrets d'Aventicum ?",
+      "hashtags": [
+        "#AventicumQuest",
+        "#Avenches",
+        "#Vaud",
+        "#RomeAntique",
+        "#JeuDePiste"
+      ],
+      "visuel": "Photo de Bjorn accroupi près d'une pierre ancienne, tenant un carnet de notes, avec des feuilles mortes au sol.",
+      "moment": "mardi après-midi"
+    },
+    {
+      "titre": "Forfait famille pour une sortie simple",
+      "plateforme": "Facebook",
+      "texte": "Les enfants adorent chercher les codes cachés. Avec notre forfait famille à 35 francs, jusqu'à cinq personnes profitent du jeu sans stress. Départ depuis la place de l'Eglise, retour vers midi. Les petits sous cinq ans sont gratuits. Une activité en plein air qui laisse les écrans de côté et rapproche parents et enfants autour d'une mission commune.",
+      "hashtags": [
+        "#FamilleEnSuisse",
+        "#SortieFamiliale",
+        "#Avenches",
+        "#ActiviteEnfants",
+        "#JeuDePiste"
+      ],
+      "visuel": "Gros plan souriant d'un enfant montrant un code trouvé, ses parents regardant la carte avec intérêt.",
+      "moment": "jeudi soir"
+    },
+    {
+      "titre": "Défi entre amis ce week-end",
+      "plateforme": "Instagram",
+      "texte": "Qui sera le plus rapide ? Huit stations, environ cent vingt minutes de marche active. Le code par commande est valable douze mois, donc pas de pression pour finir tout de suite. Mais entre amis, la compétition saine pousse à se dépêcher. Réunissez votre groupe, choisissez une date et venez prouver que votre cohésion vaut mieux qu'un guide touristique.",
+      "hashtags": [
+        "#DefiEntreAmis",
+        "#TeamBuilding",
+        "#Aventicum",
+        "#MarcheEnSuisse",
+        "#Jeunesse"
+      ],
+      "visuel": "Selfie dynamique d'un groupe de jeunes adultes riants devant l'Hôtel de Ville, tenant leurs cartes de jeu.",
+      "moment": "vendredi matin"
+    },
+    {
+      "titre": "L'histoire locale sans ennui",
+      "plateforme": "Facebook",
+      "texte": "Aventicum fut la capitale de l'Helvétie romaine. Ici, on ne lit pas seulement des dates, on cherche des indices dans les rues réelles. Chaque énigme vous fait remarquer des détails architecturaux ou historiques souvent ignorés. C'est une façon ludique de redécouvrir notre patrimoine vaudois. Pas besoin d'être historien, juste curieux et prêt à marcher un peu.",
+      "hashtags": [
+        "#PatrimoineSuisse",
+        "#HistoireLocale",
+        "#AvenchesRomaine",
+        "#CultureVaud",
+        "#TourismeLent"
+      ],
+      "visuel": "Plan serré sur une statue romaine locale avec une main pointant un détail discret nearby.",
+      "moment": "samedi en fin de journée"
+    },
+    {
+      "titre": "Idée cadeau pour anniversaire",
+      "plateforme": "Instagram",
+      "texte": "Un adulte paie douze francs, un enfant huit. Offrez une aventure plutôt qu'un objet qui prend la poussière. Le bon est valable un an, parfait pour attendre le beau temps ou un moment libre. Idéal pour les anniversaires, les enterrements de vie de jeune fille ou simplement remercier quelqu'un. La mémoire partagée reste bien plus longtemps que le présent.",
+      "hashtags": [
+        "#IdeeCadeau",
+        "#Anniversaire",
+        "#ExpériencePartagée",
+        "#Avenches",
+        "#NoelProche"
+      ],
+      "visuel": "Une personne tendant une enveloppe élégante contenant le code d'accès, sourire complice visible.",
+      "moment": "dimanche en début d'après-midi"
+    }
+  ],
+  "history": [],
+  "usage": {
+    "input": 501,
+    "output": 1046
+  }
+}
