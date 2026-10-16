@@ -8,7 +8,7 @@ Dépendances : aucune (bibliothèque standard uniquement).
 
 Variables d'environnement :
   DASHSCOPE_API_KEY  (obligatoire) clé API Alibaba Model Studio, région Singapour
-  QWEN_MODEL         (optionnel)   défaut : qwen3.8-flash
+  QWEN_MODEL         (optionnel)   défaut : qwen3.8-max
   QWEN_BASE_URL      (optionnel)   défaut : https://dashscope-intl.aliyuncs.com/compatible-mode/v1
 """
 
@@ -25,7 +25,7 @@ from pathlib import Path
 BASE_URL = os.environ.get(
     "QWEN_BASE_URL", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
 ).rstrip("/")
-MODEL = os.environ.get("QWEN_MODEL", "qwen3.8-flash")
+MODEL = os.environ.get("QWEN_MODEL", "qwen3.8-max")  # 1 appel par semaine : on prend le modèle précis
 API_KEY = os.environ.get("DASHSCOPE_API_KEY", "").strip()
 
 OUT_PATH = Path(__file__).resolve().parent.parent / "data" / "content-ideas.json"
@@ -46,6 +46,12 @@ SYSTEM_PROMPT = (
     "de l'Église (Hôtel de Ville), en plein air, à faire en équipe, un code par commande valable "
     "12 mois, adulte 12 CHF, enfant 8 CHF (5 à 17 ans, gratuit sous 5 ans), forfait famille "
     "35 CHF (jusqu'à 5 personnes), disponible en plusieurs langues.\n"
+    "Les posts sont écrits à la première personne, avec la voix de Bjorn ('je', 'on'), jamais "
+    "en parlant de lui à la troisième personne. Ne raconte JAMAIS une scène ou une histoire "
+    "comme si elle était réelle (pas de 'une équipe de quatre amis a terminé en deux heures', "
+    "pas d'anecdote client, pas de météo ou de détail de terrain que tu ne peux pas connaître). "
+    "N'invente pas d'horaire de fin de parcours ni d'objet fourni aux joueurs. Reste sur les "
+    "faits ci-dessus, la curiosité, l'envie de jouer et de partager.\n"
     "Tu proposes des idées de posts pour Instagram et Facebook, en français de Suisse romande, "
     "ton chaleureux, simple et local, pas de ton publicitaire criard. "
     "Règles strictes : pas d'émojis, pas de tirets cadratins, pas de formules creuses "
