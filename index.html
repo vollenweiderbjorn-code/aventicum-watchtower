@@ -390,6 +390,15 @@
   .post-text{ font-size: 13px; line-height: 1.55; color: var(--text); margin: 8px 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
   .post-tags{ font-size: 12px; color: var(--gold-dim); overflow-wrap: anywhere; }
   .post-note{ font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.45; }
+  .post-tag{
+    font-family: var(--mono); font-size: 10px; padding: 1px 6px; margin-right: 8px; border-radius: 4px;
+    border: 1px solid var(--hairline-strong); color: var(--gold-dim); background: rgba(201,162,75,0.07);
+    vertical-align: 2px; white-space: nowrap;
+  }
+  .post-tag.err{ color: var(--err); border-color: rgba(179,84,58,0.5); background: rgba(179,84,58,0.08); }
+  .post-tag.ok{ color: var(--ok); border-color: rgba(139,160,124,0.5); background: rgba(139,160,124,0.08); }
+  .post-tag.warn{ color: var(--warn); border-color: rgba(201,138,58,0.5); background: rgba(201,138,58,0.08); }
+  .post-link{ display:inline-block; margin-top: 8px; font-size: 12px; color: var(--gold); text-underline-offset: 3px; }
   .post-copy{
     margin-top: 10px; background: none; color: var(--gold);
     border: 1px solid var(--hairline-strong); border-radius: 999px;
@@ -594,6 +603,22 @@
       <span class="band-count" id="aiCount">—</span>
     </div>
     <div class="band-body" id="aiBody"><div class="empty">Le premier résumé arrive demain matin.</div></div>
+  </section>
+
+  <section class="band" data-key="diag">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Diagnostic des erreurs</span></span>
+      <span class="band-count" id="diagCount">—</span>
+    </div>
+    <div class="band-body" id="diagBody"><div class="empty">Le premier diagnostic arrive dans quelques heures.</div></div>
+  </section>
+
+  <section class="band" data-key="local">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Veille locale à Avenches</span></span>
+      <span class="band-count" id="localCount">—</span>
+    </div>
+    <div class="band-body" id="localBody"><div class="empty">La première veille arrive mercredi matin.</div></div>
   </section>
 
   <section class="band" data-key="content">
@@ -1257,6 +1282,56 @@
       .catch(function(){ /* pas encore d'idées : message par défaut */ });
   }
 
+  // --- Diagnostic des erreurs (agent toutes les 6 h) ---
+  var DIAG_URL = "https://raw.githubusercontent.com/vollenweiderbjorn-code/aventicum-watchtower/main/data/error-report.json";
+  var LOCAL_URL = "https://raw.githubusercontent.com/vollenweiderbjorn-code/aventicum-watchtower/main/data/local-watch.json";
+
+  function renderDiag(d){
+    var body = document.getElementById("diagBody");
+    var sev = d.severite === "urgent" ? ["URGENT", "err"] : (d.severite === "a_surveiller" ? ["À SURVEILLER", "warn"] : ["OK", "ok"]);
+    document.getElementById("diagCount").textContent = sev[0];
+    var html = '<div class="ai-headline' + (d.severite === "urgent" ? ' err' : '') + '">' + escapeHtml(d.titre || "") + '</div>'
+      + (d.resume ? '<p class="ai-summary">' + escapeHtml(d.resume) + '</p>' : '');
+    (d.problemes || []).forEach(function(p){
+      var st = p.statut === "nouveau" ? ["NOUVEAU", "err"] : (p.statut === "probablement_resolu" ? ["RÉSOLU", "ok"] : ["À SURVEILLER", "warn"]);
+      html += '<div class="post"><div class="post-head"><span class="post-title"><span class="post-tag ' + st[1] + '">' + st[0] + '</span>'
+        + escapeHtml(p.probleme) + '</span></div>'
+        + (p.cause ? '<div class="post-note">Cause probable : ' + escapeHtml(p.cause) + '</div>' : '')
+        + (p.correctif ? '<div class="post-note">À faire : ' + escapeHtml(p.correctif) + '</div>' : '')
+        + '</div>';
+    });
+    html += '<div class="ai-meta">Analysé ' + (timeAgo(d.generatedAt) || "à l'instant") + (d.model ? ' par ' + escapeHtml(d.model) : '') + '</div>';
+    body.innerHTML = html;
+  }
+
+  function renderLocal(d){
+    var body = document.getElementById("localBody");
+    document.getElementById("localCount").textContent = d.pistes.length + " pistes";
+    body.innerHTML = "";
+    d.pistes.forEach(function(p){
+      var prio = p.priorite === "haute" ? ["HAUTE", "err"] : (p.priorite === "basse" ? ["BASSE", ""] : ["MOYENNE", "warn"]);
+      var box = el("div", "post");
+      box.innerHTML = '<div class="post-head"><span class="post-title">' + escapeHtml(p.titre) + '</span>'
+        + '<span class="post-plat">' + escapeHtml(p.quand) + '</span></div>'
+        + '<div class="post-text">' + escapeHtml(p.pourquoi) + '</div>'
+        + '<div class="post-note"><span class="post-tag ' + prio[1] + '">' + prio[0] + '</span>' + escapeHtml(p.action) + '</div>'
+        + ((p.url && /^https:\/\/www\.avenches\.ch\//.test(p.url)) ? '<a class="post-link" href="' + escapeHtml(p.url) + '" target="_blank" rel="noopener noreferrer">Voir l\'événement</a>' : '');
+      body.appendChild(box);
+    });
+    body.appendChild(el("div", "ai-meta", "Source : agenda d'Avenches. Lu " + (timeAgo(d.generatedAt) || "à l'instant") + (d.model ? " par " + escapeHtml(d.model) : "")));
+  }
+
+  function loadJson(url, ok){
+    fetch(url, { cache: "no-cache" })
+      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(d){ ok(d); })
+      .catch(function(){ /* pas encore de données : message par défaut */ });
+  }
+  function loadAgents(){
+    loadJson(DIAG_URL, function(d){ if(d && d.titre) renderDiag(d); });
+    loadJson(LOCAL_URL, function(d){ if(d && Array.isArray(d.pistes) && d.pistes.length) renderLocal(d); });
+  }
+
   // Rafraîchissement manuel
   document.getElementById("refreshBtn").addEventListener("click", refresh);
 
@@ -1283,7 +1358,8 @@
       (function(band){
         var key = band.getAttribute("data-key");
         var head = band.querySelector(".band-head");
-        if(state[key]){ band.classList.add("collapsed"); head.setAttribute("aria-expanded","false"); }
+        var startCollapsed = state[key] === undefined ? (key === "content" || key === "local") : state[key];
+        if(startCollapsed){ band.classList.add("collapsed"); head.setAttribute("aria-expanded","false"); }
         function toggle(){
           var collapsed = band.classList.toggle("collapsed");
           head.setAttribute("aria-expanded", collapsed ? "false" : "true");
@@ -1559,6 +1635,7 @@
 
   loadAi();
   loadContent();
+  loadAgents();
   refresh();
   startPolling();
 

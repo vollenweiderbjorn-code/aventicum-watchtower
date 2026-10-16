@@ -48,6 +48,13 @@ OUT_PATH = Path(__file__).resolve().parent.parent / "data" / "ai-summary.json"
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 LONG_TOKEN_RE = re.compile(r"\b[A-Za-z0-9_\-]{28,}\b")  # clés, jetons, identifiants longs
 
+# Correctifs déjà appliqués (même liste que scripts/error_agent.py) : évite les fausses alertes.
+KNOWN_FIXES = [
+    {"motif": "URLSearchParams is not defined", "corrige_le": "2026-10-13"},
+    {"motif": "Signature invalide, requête rejetée", "corrige_le": "2026-10-13"},
+    {"motif": "The connection timed out (Notifier Problème)", "corrige_le": "2026-09-21"},
+]
+
 MAX_ERRORS_SENT = 8
 MAX_TEXT = 220
 
@@ -109,7 +116,9 @@ def build_digest(status):
         )
 
     return {
+        "maintenant_utc": now_iso(),
         "genere_a": status.get("generatedAt"),
+        "correctifs_deja_appliques": KNOWN_FIXES,
         "systemes": checks,
         "activite_recente": {
             "achats": len(achats),
@@ -131,6 +140,10 @@ SYSTEM_PROMPT = (
     "Règles : n'utilise que les données reçues, n'invente rien. Si un système est en erreur, "
     "dis lequel et propose une cause probable en la présentant comme une hypothèse. "
     "Signale un relevé vieux de plus de 90 minutes comme surveillance en retard. "
+    "Tous les horodatages sont en UTC. "
+    "Un incident dont le motif figure dans correctifs_deja_appliques et dont la date est antérieure "
+    "à la date de correction est résolu : ne le présente pas comme un problème en cours et ne propose "
+    "aucune action pour lui. "
     "Pas d'émojis, pas de tirets cadratins."
 )
 
