@@ -1,0 +1,44 @@
+name: Agent contenu marketing (Qwen)
+
+on:
+  schedule:
+    # Chaque lundi à 05:23 UTC (≈ 07:23 en été, 06:23 en hiver, heure suisse).
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: content-agent
+  cancel-in-progress: false
+
+jobs:
+  content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Générer les idées de posts avec Qwen
+        env:
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+          QWEN_MODEL: ${{ vars.QWEN_MODEL }}
+          QWEN_BASE_URL: ${{ vars.QWEN_BASE_URL }}
+        run: |
+          [ -z "$QWEN_MODEL" ] && unset QWEN_MODEL
+          [ -z "$QWEN_BASE_URL" ] && unset QWEN_BASE_URL
+          python3 scripts/weekly_content.py
+
+      - name: Publier les idées
+        run: |
+          git config user.name "watchtower-bot"
+          git config user.email "watchtower-bot@users.noreply.github.com"
+          git add data/content-ideas.json
+          if git diff --cached --quiet; then
+            echo "Aucun changement."
+          else
+            git commit -m "Idées de contenu de la semaine"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

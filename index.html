@@ -381,6 +381,22 @@
   .ai-actions li::before{ content: ""; position: absolute; left: 0; top: 13px; width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
   .ai-meta{ font-family: var(--mono); font-size: 11px; color: var(--text-muted); padding-bottom: 12px; }
 
+  /* Idées de posts rédigées par Qwen */
+  .post{ padding: 14px 0; border-top: 1px solid var(--hairline); }
+  .post:first-child{ border-top: none; }
+  .post-head{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .post-title{ font-family: var(--serif); font-size: 15px; color: var(--text); }
+  .post-plat{ font-family: var(--mono); font-size: 11px; color: var(--gold-dim); white-space: nowrap; }
+  .post-text{ font-size: 13px; line-height: 1.55; color: var(--text); margin: 8px 0 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .post-tags{ font-size: 12px; color: var(--gold-dim); overflow-wrap: anywhere; }
+  .post-note{ font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.45; }
+  .post-copy{
+    margin-top: 10px; background: none; color: var(--gold);
+    border: 1px solid var(--hairline-strong); border-radius: 999px;
+    font: 12px/1 var(--sans); padding: 8px 14px; cursor: pointer;
+  }
+  .post-copy:active{ background: rgba(201,162,75,0.14); }
+
   footer{
     text-align:center;
     margin-top: 48px;
@@ -578,6 +594,14 @@
       <span class="band-count" id="aiCount">—</span>
     </div>
     <div class="band-body" id="aiBody"><div class="empty">Le premier résumé arrive demain matin.</div></div>
+  </section>
+
+  <section class="band" data-key="content">
+    <div class="band-head" role="button" tabindex="0" aria-expanded="true">
+      <span class="band-title-wrap"><span class="chev" aria-hidden="true"></span><span class="band-title">Idées de posts de la semaine</span></span>
+      <span class="band-count" id="contentCount">—</span>
+    </div>
+    <div class="band-body" id="contentBody"><div class="empty">Les premières idées arrivent lundi matin.</div></div>
   </section>
 
   <section class="band" data-key="chart">
@@ -1192,6 +1216,47 @@
       .catch(function(){ /* pas encore de résumé : on garde le message par défaut */ });
   }
 
+  // --- Idées de posts (écrites chaque lundi par GitHub Actions + Qwen) ---
+  var CONTENT_URL = "https://raw.githubusercontent.com/vollenweiderbjorn-code/aventicum-watchtower/main/data/content-ideas.json";
+
+  function renderContent(d){
+    var body = document.getElementById("contentBody");
+    document.getElementById("contentCount").textContent = d.posts.length + " idées";
+    body.innerHTML = "";
+    d.posts.forEach(function(p){
+      var box = el("div", "post");
+      var tags = (p.hashtags || []).join(" ");
+      var notes = [];
+      if(p.visuel) notes.push("Visuel : " + p.visuel);
+      if(p.moment) notes.push("Quand : " + p.moment);
+      box.innerHTML = '<div class="post-head"><span class="post-title">' + escapeHtml(p.titre) + '</span>'
+        + '<span class="post-plat">' + escapeHtml(p.plateforme) + '</span></div>'
+        + '<div class="post-text">' + escapeHtml(p.texte) + '</div>'
+        + (tags ? '<div class="post-tags">' + escapeHtml(tags) + '</div>' : '')
+        + (notes.length ? '<div class="post-note">' + escapeHtml(notes.join("\n")).replace(/\n/g, "<br>") + '</div>' : '');
+      var btn = document.createElement("button");
+      btn.type = "button"; btn.className = "post-copy"; btn.textContent = "Copier le post";
+      btn.addEventListener("click", function(){
+        var full = p.texte + (tags ? "\n\n" + tags : "");
+        var done = function(){ showToast("Post copié"); };
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(full).then(done).catch(function(){ fallbackCopy(full, done); });
+        } else { fallbackCopy(full, done); }
+      });
+      box.appendChild(btn);
+      body.appendChild(box);
+    });
+    var meta = el("div", "ai-meta", "Rédigé " + (timeAgo(d.generatedAt) || "à l'instant") + (d.model ? " par " + escapeHtml(d.model) : ""));
+    body.appendChild(meta);
+  }
+
+  function loadContent(){
+    fetch(CONTENT_URL, { cache: "no-cache" })
+      .then(function(r){ if(!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function(d){ if(d && Array.isArray(d.posts) && d.posts.length) renderContent(d); })
+      .catch(function(){ /* pas encore d'idées : message par défaut */ });
+  }
+
   // Rafraîchissement manuel
   document.getElementById("refreshBtn").addEventListener("click", refresh);
 
@@ -1493,6 +1558,7 @@
   setMode(chatMode);
 
   loadAi();
+  loadContent();
   refresh();
   startPolling();
 
