@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Agent de veille locale d'Aventicum Quest, rédigé par Qwen avec recherche web.
 
-Chaque semaine, Qwen cherche sur le web les événements et occasions des prochaines semaines
-à Avenches et dans la région, et propose où et quand promouvoir le jeu.
+Chaque semaine, le script lit l'agenda officiel d'Avenches (avenches.ch/agenda), puis Qwen en tire
+les occasions utiles pour faire connaître le jeu (événements, publics, partenaires possibles).
 Écrit data/local-watch.json (affiché sur le dashboard).
 
-Les liens affichés viennent UNIQUEMENT des résultats de recherche renvoyés par l'API,
-jamais du texte écrit par le modèle, pour éviter les liens inventés.
+Les liens affichés viennent UNIQUEMENT des pages réellement lues, jamais du texte du modèle.
+(La recherche web intégrée de Qwen ne renvoie rien sur ce modèle : on lit les sources nous-mêmes.)
 
 Variables d'environnement : DASHSCOPE_API_KEY (obligatoire), QWEN_MODEL, QWEN_BASE_URL
 """
@@ -17,8 +17,10 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 
 BASE_URL = os.environ.get(
@@ -31,27 +33,83 @@ OUT_PATH = Path(__file__).resolve().parent.parent / "data" / "local-watch.json"
 MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août",
         "septembre", "octobre", "novembre", "décembre"]
 
+AGENDA_PAGES = [
+    "https://www.avenches.ch/agenda/",
+    "https://www.avenches.ch/agenda/page/2/",
+    "https://www.avenches.ch/agenda/page/3/",
+]
+
 SYSTEM_PROMPT = (
     "Tu es l'éclaireur local d'Aventicum Quest, un jeu de piste en plein air à Avenches (Vaud), "
     "sur le thème de la Rome antique, qui se joue en équipe (familles, amis, groupes) en environ "
     "120 minutes. Le créateur, Bjorn, cherche où et quand faire connaître le jeu localement. "
-    "Utilise la recherche web pour trouver des événements et occasions RÉELS et à venir, dans les "
-    "8 prochaines semaines, à Avenches et dans la région (Broye, Payerne, Morat, Estavayer, lac de "
-    "Morat, Vaud et Fribourg proches) : marchés, fêtes, marché de Noël, événements romains ou "
-    "culturels au site d'Aventicum, vacances scolaires, activités pour familles, offices du "
-    "tourisme, hôtels, écoles, sociétés locales et entreprises qui pourraient offrir le jeu ou "
-    "organiser une sortie d'équipe. "
-    "Règles strictes : ne cite que ce que tu as réellement trouvé, ne devine aucune date. "
-    "Si la date ou le lieu n'est pas confirmé par une source, écris 'date à confirmer'. "
+    "Tu reçois le texte de l'agenda officiel d'Avenches (événements avec dates et liens). "
+    "Choisis 4 à 6 occasions des 10 prochaines semaines où le jeu peut être promu : événements qui "
+    "attirent des familles, des amis ou des groupes, événements sur la Rome antique ou le patrimoine, "
+    "jeux, fêtes de fin d'année (idée de bon cadeau). Ignore les événements déjà passés. "
+    "Règles strictes : n'utilise que les événements et les dates présents dans le texte reçu. "
+    "N'invente aucun événement, date, lieu ou contact. Si une date manque, écris 'date à confirmer'. "
     "Pas d'émojis, pas de tirets cadratins, français de Suisse romande.\n"
     "Réponds UNIQUEMENT par un objet JSON avec une clé \"pistes\" : liste de 4 à 6 objets avec :\n"
-    '  "titre": nom de l\'événement ou de l\'occasion ;\n'
-    '  "quand": date ou période, ou "date à confirmer" ;\n'
+    '  "titre": nom de l\'événement ;\n'
+    '  "quand": date ou période ;\n'
     '  "lieu": commune ou lieu ;\n'
     '  "pourquoi": pourquoi c\'est utile pour le jeu, en une phrase ;\n'
-    '  "action": une action concrète pour Bjorn (qui contacter ou quoi publier), en une phrase ;\n'
+    '  "action": une action concrète pour Bjorn (quoi publier, qui contacter), en une phrase ;\n'
+    '  "url": l\'adresse de l\'événement, copiée telle quelle depuis le texte reçu ;\n'
     '  "priorite": "haute" | "moyenne" | "basse".'
 )
+
+
+class TextAndLinks(HTMLParser):
+    """Extrait le texte visible et les liens d'événements d'une page."""
+
+    def __init__(self, base):
+        super().__init__()
+        self.base = base
+        self.skip = 0
+        self.parts = []
+        self.links = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style", "noscript", "svg"):
+            self.skip += 1
+        if tag == "a":
+            href = dict(attrs).get("href") or ""
+            full = urllib.parse.urljoin(self.base, href)
+            if "/events/" in full and full not in self.links:
+                self.links.append(full)
+                self.parts.append(f" [lien: {full}] ")
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style", "noscript", "svg") and self.skip:
+            self.skip -= 1
+        if tag in ("p", "div", "li", "h1", "h2", "h3", "h4", "article", "section", "br"):
+            self.parts.append("\n")
+
+    def handle_data(self, data):
+        if not self.skip and data.strip():
+            self.parts.append(data.strip() + " ")
+
+
+def fetch_agenda():
+    """Texte des pages de l'agenda et liste des liens lus. Une page absente est ignorée."""
+    texts, links = [], []
+    for url in AGENDA_PAGES:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (aventicum-watchtower)"})
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                html = r.read().decode("utf-8", "replace")
+        except Exception as e:
+            print(f"Page ignorée {url} : {e}", file=sys.stderr)
+            continue
+        parser = TextAndLinks(url)
+        parser.feed(html)
+        text = re.sub(r"[ \t]+", " ", "".join(parser.parts))
+        text = re.sub(r"\n\s*\n+", "\n", text).strip()
+        texts.append(f"=== {url} ===\n{text[:9000]}")
+        links += [l for l in parser.links if l not in links]
+    return "\n\n".join(texts), links
 
 
 def now_iso():
@@ -76,8 +134,7 @@ def call_qwen(prompt):
         "temperature": 0.3,
         "max_tokens": 2000,
         "enable_thinking": False,
-        "enable_search": True,
-        "search_options": {"forced_search": True, "enable_source": True},
+        "response_format": {"type": "json_object"},
     }
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
     last = None
@@ -105,21 +162,7 @@ def parse_json(text):
         return json.loads(m.group(0))
 
 
-def find_sources(resp):
-    """Liens réellement renvoyés par la recherche (pas ceux écrits par le modèle)."""
-    info = resp.get("search_info") or {}
-    if not info:
-        info = ((resp.get("choices") or [{}])[0].get("message") or {}).get("search_info") or {}
-    out, seen = [], set()
-    for r in info.get("search_results") or []:
-        u = str(r.get("url") or "").strip()
-        if u.startswith("http") and u not in seen:
-            seen.add(u)
-            out.append({"titre": str(r.get("title") or u)[:120], "url": u, "site": str(r.get("site_name") or "")[:60]})
-    return out[:10]
-
-
-def clean_pistes(raw):
+def clean_pistes(raw, allowed_links):
     out = []
     for p in (raw.get("pistes") or [])[:6]:
         if not isinstance(p, dict) or not str(p.get("titre") or "").strip():
@@ -133,6 +176,8 @@ def clean_pistes(raw):
                 "pourquoi": str(p.get("pourquoi") or "").strip()[:260],
                 "action": str(p.get("action") or "").strip()[:260],
                 "priorite": prio,
+                # seuls les liens réellement lus sur l'agenda sont conservés
+                "url": str(p.get("url") or "").strip() if str(p.get("url") or "").strip() in allowed_links else "",
             }
         )
     if not out:
@@ -144,26 +189,24 @@ def main():
     if not API_KEY:
         print("DASHSCOPE_API_KEY manquante", file=sys.stderr)
         return 1
-    d = datetime.now(timezone.utc)
-    prompt = f"Nous sommes le {d.day} {MOIS[d.month - 1]} {d.year}. Fais la veille locale de la semaine."
-    resp = call_qwen(prompt)
-    sources = find_sources(resp)
-    print(f"Sources de recherche renvoyées : {len(sources)}")
-    if not sources:
-        # sans résultat de recherche, le modèle répondrait de mémoire : on n'affiche rien
-        msg = (resp.get("choices") or [{}])[0].get("message") or {}
-        print("Diagnostic : clés réponse =", sorted(resp.keys()), "| clés message =", sorted(msg.keys()),
-              "| modèle =", resp.get("model"), file=sys.stderr)
-        print("Début de la réponse :", str(msg.get("content"))[:300].replace("\n", " "), file=sys.stderr)
-        print("Aucune source renvoyée : la recherche web n'a pas fonctionné, rien n'est publié.", file=sys.stderr)
+    agenda, links = fetch_agenda()
+    print(f"Agenda lu : {len(agenda)} caractères, {len(links)} liens d'événements")
+    if len(agenda) < 500:
+        print("Agenda illisible ou vide : rien n'est publié.", file=sys.stderr)
         return 1
-    pistes = clean_pistes(parse_json(resp["choices"][0]["message"]["content"]))
+    d = datetime.now(timezone.utc)
+    prompt = (
+        f"Nous sommes le {d.day} {MOIS[d.month - 1]} {d.year}. Voici l'agenda officiel d'Avenches :\n\n"
+        + agenda
+    )
+    resp = call_qwen(prompt)
+    pistes = clean_pistes(parse_json(resp["choices"][0]["message"]["content"]), set(links))
     usage = resp.get("usage") or {}
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(
         json.dumps(
-            {"generatedAt": now_iso(), "model": resp.get("model") or MODEL, "pistes": pistes,
-             "sources": sources,
+            {"generatedAt": now_iso(), "model": resp.get("model") or MODEL, "source": "avenches.ch/agenda",
+             "pistes": pistes,
              "usage": {"input": usage.get("prompt_tokens"), "output": usage.get("completion_tokens")}},
             ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
