@@ -151,6 +151,10 @@ def main():
     print(f"Sources de recherche renvoyées : {len(sources)}")
     if not sources:
         # sans résultat de recherche, le modèle répondrait de mémoire : on n'affiche rien
+        msg = (resp.get("choices") or [{}])[0].get("message") or {}
+        print("Diagnostic : clés réponse =", sorted(resp.keys()), "| clés message =", sorted(msg.keys()),
+              "| modèle =", resp.get("model"), file=sys.stderr)
+        print("Début de la réponse :", str(msg.get("content"))[:300].replace("\n", " "), file=sys.stderr)
         print("Aucune source renvoyée : la recherche web n'a pas fonctionné, rien n'est publié.", file=sys.stderr)
         return 1
     pistes = clean_pistes(parse_json(resp["choices"][0]["message"]["content"]))
