@@ -64,7 +64,8 @@ SYSTEM_PROMPT = (
     '  "titre": 4 à 8 mots décrivant l\'idée ;\n'
     '  "plateforme": "Instagram" ou "Facebook" ;\n'
     '  "texte": la légende prête à publier (200 caractères minimum, 450 maximum) ;\n'
-    '  "hashtags": liste de 3 à 6 hashtags sans espaces ;\n'
+    '  "hashtags": tableau JSON de 3 à 6 chaînes, UN hashtag par élément, par exemple '
+    '["#Avenches", "#JeuDePiste", "#Vaud"] ;\n'
     '  "visuel": une phrase décrivant la photo ou la vidéo à prendre ;\n'
     '  "moment": le meilleur jour ou moment pour publier (ex. "dimanche en fin de matinée").'
 )
@@ -148,7 +149,14 @@ def clean_posts(raw):
             continue
         plat = str(p.get("plateforme") or "").strip()
         plat = plat if plat in PLATFORMS else "Instagram"
-        tags = [clean_hashtag(h) for h in (p.get("hashtags") or [])]
+        raw_tags = p.get("hashtags") or []
+        if isinstance(raw_tags, str):
+            raw_tags = [raw_tags]
+        # le modèle colle parfois plusieurs hashtags dans un seul texte : on découpe sur # et espaces
+        pieces = []
+        for h in raw_tags:
+            pieces += re.split(r"[#\s,]+", str(h))
+        tags = [clean_hashtag(h) for h in pieces]
         tags = [t for t in tags if t][:6]
         posts.append(
             {
