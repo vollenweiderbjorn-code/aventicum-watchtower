@@ -1,0 +1,56 @@
+{
+  "generatedAt": "2026-10-16T07:01:50Z",
+  "model": "qwen3.8-max",
+  "source": "avenches.ch/agenda",
+  "pistes": [
+    {
+      "titre": "Nuit du Jeu",
+      "quand": "7 novembre 2026",
+      "lieu": "Avenches",
+      "pourquoi": "Cet événement organisé par la Ludothèque attire directement les amateurs de jeux, les familles et les groupes d'amis, soit le public cible idéal pour Aventicum Quest.",
+      "action": "Contacter la Ludothèque d'Avenches pour proposer un stand de présentation du jeu de piste ou distribuer des flyers aux participants durant la soirée.",
+      "priorite": "haute",
+      "url": "https://www.avenches.ch/events/nuit-du-jeu/"
+    },
+    {
+      "titre": "Les Apéritifs du Jeudi",
+      "quand": "12 novembre 2026",
+      "lieu": "Avenches",
+      "pourquoi": "Cette conférence sur la vie des habitants d'Aventicum rassemble des passionnés d'histoire romaine et de patrimoine local, parfaitement en phase avec le thème du jeu.",
+      "action": "Assister à la conférence organisée par les Site et musée romains d'Avenches et l'Association Pro Aventico pour présenter le jeu aux participants à la fin de la séance.",
+      "priorite": "haute",
+      "url": "https://www.avenches.ch/events/les-aperitifs-du-jeudi/"
+    },
+    {
+      "titre": "Aventicum, les trésors du dépôt archéologique",
+      "quand": "15 novembre 2026",
+      "lieu": "Avenches",
+      "pourquoi": "Cette visite guidée du dépôt archéologique attire les curieux du passé romain d'Avenches qui seront très réceptifs à une activité ludique sur le même thème.",
+      "action": "Se rapprocher des Site et Musée romains d'Avenches pour demander l'autorisation de déposer des cartes postales ou des bons cadeaux Aventicum Quest à l'accueil lors de la visite.",
+      "priorite": "moyenne",
+      "url": "https://www.avenches.ch/events/aventicum-les-tresors-du-depot-archeologique/"
+    },
+    {
+      "titre": "Ouverture du Village de Noël",
+      "quand": "1 décembre 2026",
+      "lieu": "Avenches",
+      "pourquoi": "L'ouverture du Village de Noël sur la place de l'Eglise est le moment parfait pour promouvoir le jeu sous forme de bon cadeau à offrir pour les fêtes de fin d'année.",
+      "action": "Louer un petit espace ou s'associer à un stand du Village de Noël pour vendre des bons cadeaux Aventicum Quest aux familles et amis présents ce jour-là.",
+      "priorite": "haute",
+      "url": "https://www.avenches.ch/events/ouverture-du-village-de-noel/"
+    },
+    {
+      "titre": "Village de Noël",
+      "quand": "1 décembre 2026",
+      "lieu": "Avenches",
+      "pourquoi": "Le Village de Noël se tient durant tout le mois de décembre sur la place de l'Eglise, offrant une visibilité continue pour vendre des bons cadeaux aux groupes et familles de passage.",
+      "action": "Contacter Avenches Tourisme au +41 26 676 99 22 ou via info@avenches.ch pour obtenir un emplacement régulier afin de faire connaître le jeu pendant toute la durée de la manifestation.",
+      "priorite": "haute",
+      "url": "https://www.avenches.ch/events/village-de-noel/"
+    }
+  ],
+  "usage": {
+    "input": 7949,
+    "output": 681
+  }
+}
