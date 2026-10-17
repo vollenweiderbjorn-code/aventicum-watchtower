@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-16T10:09:37Z",
+  "generatedAt": "2026-10-17T09:43:26Z",
   "model": "qwen3.8-flash",
   "level": "ok",
-  "headline": "系统状态正常，无未解决技术故障",
-  "summary": "所有核心系统（游戏站点、展示站点、邮件服务及数据表）均运行正常且监控数据新鲜。近期活动显示有1笔订单和8局游戏进行。历史报错记录均已修复，当前无活跃技术问题。",
+  "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs antérieurs.",
+  "summary": "Les quatre systèmes surveillés (sites, Brevo, Google Sheet) sont accessibles et en état nominal. Les relevés datent de moins de 90 minutes. Les sept incidents listés concernent des erreurs déjà corrigées avant leur survenue ou traitées par des patchs antérieurs, aucun problème actif n'est détecté.",
   "actions": [],
   "usage": {
     "input": 1245,
-    "output": 72
+    "output": 108
   }
 }
