@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-19T11:18:38Z",
+  "generatedAt": "2026-10-20T10:27:34Z",
   "model": "qwen3.8-flash",
   "level": "ok",
-  "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs antérieurs.",
-  "summary": "Les quatre systèmes surveillés (sites, Brevo, Google Sheet) sont en état de fonctionnement nominal avec des relevés récents. Les sept incidents listés concernent des erreurs déjà corrigées avant leur date d'occurrence ou traitées par des patchs antérieurs. Aucune action corrective immédiate n'est requise pour le moment.",
+  "headline": "Tous les systèmes opérationnels, incidents récents résolus",
+  "summary": "Les quatre systèmes surveillés sont accessibles et fonctionnels avec des relevés récents. Les sept incidents listés correspondent à des erreurs déjà corrigées selon le registre de maintenance. Aucune anomalie active n'est détectée sur l'infrastructure.",
   "actions": [],
   "usage": {
     "input": 1245,
-    "output": 109
+    "output": 84
   }
 }
