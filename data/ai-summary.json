@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-23T10:33:28Z",
+  "generatedAt": "2026-10-24T09:49:35Z",
   "model": "qwen3.8-flash",
   "level": "ok",
-  "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs appliqués.",
-  "summary": "Les quatre systèmes surveillés sont accessibles et fonctionnent correctement. Les erreurs de signature Stripe et d'URLSearchParams ont été corrigées le 13 octobre, rendant les incidents listés obsolètes. Aucune anomalie active n'est détectée à ce jour.",
+  "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs antérieurs",
+  "summary": "Les quatre systèmes surveillés (Google Sheet, Brevo, sites web) sont accessibles et fonctionnels. Les relevés datent de moins de 50 minutes, la surveillance est donc à jour. Tous les incidents listés ont été corrigés avant leur date de survenue ou figurent dans les correctifs déjà appliqués.",
   "actions": [],
   "usage": {
     "input": 1245,
-    "output": 94
+    "output": 106
   }
 }
