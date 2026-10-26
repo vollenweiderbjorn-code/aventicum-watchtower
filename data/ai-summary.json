@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-25T10:11:47Z",
+  "generatedAt": "2026-10-26T11:34:31Z",
   "model": "qwen3.8-flash",
   "level": "ok",
-  "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs",
-  "summary": "Les quatre systèmes surveillés sont accessibles et fonctionnels avec des relevés récents. Les sept incidents listés concernent des erreurs déjà corrigées le 13 octobre ou le 21 septembre. L'activité récente montre une légère utilisation du jeu en français.",
+  "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs antérieurs.",
+  "summary": "Les quatre systèmes surveillés sont en état de fonctionnement normal avec des relevés récents. Les sept incidents listés concernent des erreurs déjà corrigées avant leur survenue ou traitées par des patchs antérieurs. Aucune action corrective immédiate n'est requise pour le poste de contrôle.",
   "actions": [],
   "usage": {
     "input": 1245,
-    "output": 91
+    "output": 99
   }
 }
