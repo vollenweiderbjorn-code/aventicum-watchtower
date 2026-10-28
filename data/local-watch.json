@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T10:33:55Z",
+  "generatedAt": "2026-10-28T11:36:51Z",
   "model": "qwen3.8-max",
   "source": "avenches.ch/agenda",
   "pistes": [
@@ -8,7 +8,7 @@
       "quand": "7 novembre 2026",
       "lieu": "Avenches",
       "pourquoi": "Cet événement organisé par la Ludothèque attire directement les amateurs de jeux, les familles et les groupes d'amis, soit le public cible idéal pour Aventicum Quest.",
-      "action": "Contacter la Ludothèque d'Avenches pour proposer un stand de présentation du jeu de piste ou distribuer des flyers aux participants durant la soirée.",
+      "action": "Contacter la Ludothèque d'Avenches pour proposer un stand ou distribuer des flyers présentant le jeu de piste comme une activité ludique en plein air complémentaire à leur soirée.",
       "priorite": "haute",
       "url": "https://www.avenches.ch/events/nuit-du-jeu/"
     },
@@ -16,8 +16,8 @@
       "titre": "Les Apéritifs du Jeudi",
       "quand": "12 novembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "Cette conférence sur la vie des habitants d'Aventicum rassemble des passionnés d'histoire romaine et de patrimoine local qui seront très réceptifs au thème du jeu.",
-      "action": "Assister à la conférence organisée par les Site et musée romains d'Avenches et l'Association Pro Aventico pour présenter le jeu aux participants à la fin de la rencontre.",
+      "pourquoi": "Cette conférence sur la vie des habitants d'Aventicum rassemble des passionnés d'histoire romaine et de patrimoine local, parfaitement dans le thème du jeu.",
+      "action": "Assister à la conférence organisée par les Site et musée romains d'Avenches et l'Association Pro Aventico pour présenter brièvement le jeu aux participants à la fin de la séance.",
       "priorite": "haute",
       "url": "https://www.avenches.ch/events/les-aperitifs-du-jeudi/"
     },
@@ -25,8 +25,8 @@
       "titre": "Aventicum, les trésors du dépôt archéologique",
       "quand": "15 novembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "La visite guidée du dépôt archéologique attire des familles et des curieux intéressés par les fouilles d'Aventicum, en lien direct avec le parcours du jeu de piste.",
-      "action": "Se rapprocher des Site et Musée romains d'Avenches pour glisser des cartes postales promotionnelles du jeu à la fin de la visite guidée.",
+      "pourquoi": "La visite guidée du dépôt archéologique attire des personnes intéressées par le passé romain de la ville qui pourraient vouloir prolonger l'expérience avec le jeu de piste.",
+      "action": "Se rapprocher des organisateurs de la visite pour demander l'autorisation de laisser des cartes de visite ou des bons cadeaux Aventicum Quest à l'accueil du musée.",
       "priorite": "moyenne",
       "url": "https://www.avenches.ch/events/aventicum-les-tresors-du-depot-archeologique/"
     },
@@ -34,23 +34,23 @@
       "titre": "Village de Noël",
       "quand": "1 décembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "Le marché de Noël sur la place de l'Eglise draine un large public familial et constitue une occasion parfaite pour vendre des bons cadeaux Aventicum Quest pour les fêtes de fin d'année.",
-      "action": "Réserver un petit stand ou demander l'autorisation à Avenches Tourisme pour distribuer des bons cadeaux et des brochures du jeu pendant tout le mois de décembre.",
+      "pourquoi": "Le marché de Noël sur la place de l'Eglise draine un large public familial tout au long du mois de décembre, offrant une vitrine parfaite pour vendre des bons cadeaux de fin d'année.",
+      "action": "Réserver un petit stand ou collaborer avec Avenches Tourisme pour proposer des bons cadeaux Aventicum Quest comme idée de présent original à glisser sous le sapin.",
       "priorite": "haute",
       "url": "https://www.avenches.ch/events/village-de-noel/"
     },
     {
-      "titre": "Fenêtres de l'Avent",
-      "quand": "1 décembre 2026",
+      "titre": "Course à Travers Avenches",
+      "quand": "4 décembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "Cette animation de l'Avent encourage les familles et les habitants à se promener dans la ville, ce qui correspond exactement à l'esprit d'un jeu de piste en plein air.",
-      "action": "Proposer à l'organisation d'intégrer une énigme ou un indice lié à Aventicum Quest derrière l'une des fenêtres de l'Avent pour faire découvrir le jeu aux promeneurs.",
-      "priorite": "moyenne",
-      "url": "https://www.avenches.ch/events/fenetres-de-lavent-2/"
+      "pourquoi": "Ce rassemblement sportif régional réunit des équipes et des groupes locaux qui apprécient les défis physiques et collectifs en extérieur.",
+      "action": "Distribuer des flyers aux spectateurs et aux équipes participantes à la fin de la course pour promouvoir le jeu de piste comme prochaine activité de groupe hivernale.",
+      "priorite": "basse",
+      "url": "https://www.avenches.ch/events/course-a-travers-avenches/"
     }
   ],
   "usage": {
-    "input": 7964,
-    "output": 670
+    "input": 7946,
+    "output": 655
   }
 }
