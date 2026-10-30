@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-29T11:48:59Z",
+  "generatedAt": "2026-10-30T11:41:40Z",
   "model": "qwen3.8-flash",
   "level": "ok",
   "headline": "Tous les systèmes opérationnels, incidents récents résolus",
-  "summary": "Les quatre systèmes surveillés sont accessibles et fonctionnels avec des relevés récents. Les sept incidents enregistrés concernent des erreurs déjà corrigées en septembre et octobre. L'activité récente montre cinq achats et dix parties sans anomalie détectée.",
+  "summary": "Les quatre systèmes surveillés sont accessibles et fonctionnels. Les sept incidents listés ont été corrigés avant la date de génération du digest. L'activité récente montre cinq achats et dix parties sans anomalie détectée.",
   "actions": [],
   "usage": {
     "input": 1258,
-    "output": 85
+    "output": 79
   }
 }
