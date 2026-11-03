@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-02T13:52:58Z",
+  "generatedAt": "2026-11-03T13:02:00Z",
   "model": "qwen3.8-flash",
   "level": "ok",
   "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs antérieurs.",
-  "summary": "Les quatre systèmes surveillés (Google Sheet, Brevo, sites web) sont accessibles et fonctionnels. Les relevés datent de moins de une heure, assurant une surveillance à jour. Les erreurs Stripe et Watchtower listées ont été corrigées avant leur occurrence ou figurent dans les correctifs appliqués.",
+  "summary": "Les quatre systèmes surveillés (Google Sheet, Brevo, sites web) sont accessibles et fonctionnels avec des relevés à jour. Les sept incidents enregistrés dans le digest ont tous été corrigés avant leur date de survenue respective selon la liste des correctifs appliqués. L'activité récente montre un flux normal de 5 achats et 10 parties sans anomalie détectée.",
   "actions": [],
   "usage": {
     "input": 1258,
-    "output": 103
+    "output": 119
   }
 }
