@@ -1,83 +1,77 @@
 {
-  "generatedAt": "2026-11-02T13:40:13Z",
+  "generatedAt": "2026-11-09T14:04:23Z",
   "model": "qwen3.8-max",
   "posts": [
     {
-      "titre": "Novembre à Avenches sans se presser",
+      "titre": "Créer seul un parcours de huit stations",
       "plateforme": "Instagram",
-      "texte": "En novembre, les journées raccourcissent et on cherche des raisons de sortir. Aventicum Quest se joue en plein air, à votre rythme. Vous avez douze mois pour utiliser votre code après la commande. Pas besoin de courir. Huit stations vous attendent depuis la place de l'Église, devant l'Hôtel de Ville. Prenez le temps de regarder Avenches autrement.",
+      "texte": "Quand j'ai commencé à imaginer Aventicum Quest, je ne savais pas par quel bout prendre les choses. Huit stations à placer dans Avenches, un texte à écrire pour chacune, des indices à tester sur le terrain. Je fais tout moi-même et chaque détail compte. Si vous êtes curieux de voir comment la ville se raconte à travers ce jeu, on se retrouve place de l'Église pour le départ.",
       "hashtags": [
         "#Avenches",
-        "#Vaud",
-        "#SuisseRomande",
+        "#CreationLocale",
         "#JeuDePiste",
-        "#Novembre"
+        "#Vaud",
+        "#SuisseRomande"
       ],
-      "visuel": "Une photo de la place de l'Église à Avenches sous une lumière douce d'automne, avec les pavés visibles au premier plan.",
-      "moment": "mardi en fin d'après-midi"
+      "visuel": "Une photo de mes mains posées sur un plan papier d'Avenches avec des notes manuscrites au crayon, prises sur une table en bois.",
+      "moment": "mardi en début de soirée"
     },
     {
-      "titre": "Trouver les traces romaines ensemble",
+      "titre": "Un cadeau qui tient dans un message",
       "plateforme": "Facebook",
-      "texte": "Aventicum était la capitale de l'Helvétie romaine. Quand je prépare les étapes du jeu, je pense toujours à ce que les habitants voyaient ici il y a deux mille ans. On ne vous demande pas d'être historien. Juste d'observer. Les huit stations sont réparties dans la ville, au départ de la place de l'Église. C'est une bonne façon de partager un moment dehors avec vos proches, quel que soit leur âge.",
+      "texte": "On me demande souvent comment offrir Aventicum Quest. C'est simple : après votre commande, vous recevez un code. Il reste valable douze mois. La personne à qui vous le transmettez choisit son jour, rassemble son équipe et part depuis la place de l'Église. Pas d'emballage, pas de contrainte de date. Juste l'envie de passer deux heures à chercher ensemble dans les rues d'Avenches.",
+      "hashtags": [
+        "#IdeeCadeau",
+        "#Avenches",
+        "#JeuDePiste",
+        "#Vaud"
+      ],
+      "visuel": "Une photo d'un téléphone affichant un message court avec un code alphanumérique, posé à côté d'une tasse de café sur une table.",
+      "moment": "jeudi matin vers neuf heures"
+    },
+    {
+      "titre": "Huit étapes pour comprendre Aventicum",
+      "plateforme": "Instagram",
+      "texte": "Aventicum était la capitale de l'Helvétie romaine. Ce fait m'a toujours fasciné. En préparant les huit stations du parcours, j'ai voulu que chaque arrêt vous pousse à lever les yeux sur les pierres de notre ville. On ne fait pas un cours d'histoire. On marche, on cherche, on discute entre coéquipiers pendant environ cent vingt minutes. Le point de départ est fixé devant l'Hôtel de Ville, place de l'Église.",
       "hashtags": [
         "#Aventicum",
         "#HistoireRomaine",
         "#Avenches",
-        "#SortirEnFamille",
-        "#Vaud"
-      ],
-      "visuel": "Un plan large d'une rue pavée d'Avenches montrant un mur ancien intégré aux bâtiments actuels.",
-      "moment": "jeudi matin"
-    },
-    {
-      "titre": "Organiser une sortie sans stress",
-      "plateforme": "Instagram",
-      "texte": "Je reçois parfois des messages de personnes qui hésitent à organiser une sortie pour leur groupe. Avec Aventicum Quest, tout est déjà pensé. Vous commandez un code, valable douze mois, et vous choisissez votre jour. Le parcours part de la place de l'Église et compte huit stations. Adulte 12 CHF, enfant de 5 à 17 ans 8 CHF, gratuit pour les plus petits. Le forfait famille à 35 CHF couvre jusqu'à cinq personnes. Simple et clair.",
-      "hashtags": [
-        "#Avenches",
-        "#IdéeSortie",
-        "#SuisseRomande",
-        "#JeuDePiste"
-      ],
-      "visuel": "Une photo prise au niveau du sol sur la place de l'Église, montrant les pieds de plusieurs personnes prêtes à marcher.",
-      "moment": "mercredi midi"
-    },
-    {
-      "titre": "Parler la même langue en jouant",
-      "plateforme": "Facebook",
-      "texte": "Avenches accueille des visiteurs de partout. J'ai voulu qu'Aventicum Quest soit accessible au plus grand nombre, c'est pourquoi le jeu est disponible en plusieurs langues. Que vous habitiez la région ou que vous veniez passer quelques jours dans le canton de Vaud, on peut jouer ensemble. Le départ se fait devant l'Hôtel de Ville, place de l'Église. Comptez environ cent vingt minutes pour parcourir les huit stations.",
-      "hashtags": [
-        "#Avenches",
-        "#TourismeLocal",
-        "#Vaud",
-        "#Multilingue",
-        "#AventicumQuest"
-      ],
-      "visuel": "Un panneau de direction ou une plaque de rue à Avenches, net et bien éclairé, sans personne dessus.",
-      "moment": "samedi matin"
-    },
-    {
-      "titre": "Le terrain de jeu de notre enfance",
-      "plateforme": "Instagram",
-      "texte": "Je connais chaque ruelle d'Avenches. En créant Aventicum Quest, j'ai cherché les endroits où l'on passe sans vraiment regarder. Le jeu commence place de l'Église et traverse la ville en huit stations. Les enfants de 5 à 17 ans participent pour 8 CHF, et ceux de moins de 5 ans nous accompagnent gratuitement. C'est ma manière de faire découvrir mon quotidien et l'héritage d'Aventicum à vos équipes.",
-      "hashtags": [
-        "#Avenches",
-        "#Vaud",
-        "#Enfants",
-        "#JeuEnPleinAir",
+        "#JeuDePiste",
         "#SuisseRomande"
       ],
-      "visuel": "Une vue dégagée d'un passage piéton ou d'une petite place secondaire d'Avenches, typique mais peu photographiée.",
-      "moment": "dimanche en début d'après-midi"
+      "visuel": "Une photo prise à hauteur d'yeux d'une pierre ancienne ou d'un mur historique d'Avenches, sans personne dessus, lumière naturelle douce.",
+      "moment": "samedi en fin de matinée"
+    },
+    {
+      "titre": "Le tarif pensé pour votre groupe",
+      "plateforme": "Facebook",
+      "texte": "Je reçois des questions sur les prix alors je vous explique comment ça fonctionne. Pour un adulte, comptez 12 CHF. Pour un enfant de 5 à 17 ans, c'est 8 CHF, et c'est gratuit avant 5 ans. Si vous venez à plusieurs, le forfait famille à 35 CHF couvre jusqu'à cinq personnes. Un seul code suffit pour toute votre équipe. Vous décidez de votre rythme au départ de la place de l'Église.",
+      "hashtags": [
+        "#SortirEnFamille",
+        "#Avenches",
+        "#Vaud",
+        "#JeuDePiste"
+      ],
+      "visuel": "Une photo de trois ou quatre paires de chaussures différentes alignées sur les pavés près de la place de l'Église.",
+      "moment": "mercredi en début d'après-midi"
+    },
+    {
+      "titre": "Deux heures dehors avec votre équipe",
+      "plateforme": "Instagram",
+      "texte": "Le jeu se déroule entièrement en plein air. C'était important pour moi quand j'ai construit le parcours. Vous formez votre équipe, vous lisez les premiers indices place de l'Église devant l'Hôtel de Ville, puis vous marchez d'une station à l'autre. Environ cent vingt minutes à discuter, à observer Avenches autrement et à résoudre les énigmes que j'ai préparées. Chacun apporte son regard et c'est ce qui rend la partie intéressante.",
+      "hashtags": [
+        "#PleinAir",
+        "#Avenches",
+        "#JeuDePiste",
+        "#Vaud",
+        "#SuisseRomande"
+      ],
+      "visuel": "Une vue large de la place de l'Église à Avenches montrant l'Hôtel de Ville sous un ciel clair de novembre.",
+      "moment": "dimanche en milieu de matinée"
     }
   ],
   "history": [
-    "Douze mois pour jouer ensemble",
-    "Qui sera le meilleur enquêteur",
-    "Aventicum parlait plusieurs langues",
-    "Les enfants jouent gratuitement",
-    "Mon idée pour vos week-ends",
     "Pourquoi j'ai choisi la place de l'Église",
     "Cent vingt minutes qui changent votre samedi",
     "Le forfait famille expliqué simplement",
@@ -87,10 +81,15 @@
     "Offrir du temps plutôt que des objets",
     "Le défi entre amis à Avenches",
     "Les langues anciennes et notre jeu",
-    "Le dimanche des familles à Avenches"
+    "Le dimanche des familles à Avenches",
+    "Novembre à Avenches sans se presser",
+    "Trouver les traces romaines ensemble",
+    "Organiser une sortie sans stress",
+    "Parler la même langue en jouant",
+    "Le terrain de jeu de notre enfance"
   ],
   "usage": {
-    "input": 820,
-    "output": 885
+    "input": 826,
+    "output": 909
   }
 }
