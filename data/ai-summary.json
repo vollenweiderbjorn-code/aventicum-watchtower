@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-17T14:56:02Z",
+  "generatedAt": "2026-11-18T14:36:07Z",
   "model": "qwen3.8-flash",
   "level": "ok",
-  "headline": "Tous les systèmes opérationnels, incidents anciens corrigés, surveillance à jour",
-  "summary": "Les quatre systèmes critiques (sites, Brevo, Google Sheet) sont accessibles et fonctionnels. Les relevés de statut datent de moins de une heure, confirmant une surveillance active. Les sept incidents récents listés ont tous été résolus par des correctifs appliqués antérieurement.",
+  "headline": "Tous les systèmes opérationnels, incidents récents résolus par correctifs antérieurs.",
+  "summary": "Les quatre systèmes surveillés (Google Sheet, Brevo, sites web) sont accessibles et fonctionnels. Les relevés techniques datent de moins de 40 minutes, ce qui est conforme aux attentes. Les sept incidents listés ont été corrigés avant leur date de survenue ou figurent dans la liste des correctifs déjà appliqués.",
   "actions": [],
   "usage": {
     "input": 1258,
-    "output": 97
+    "output": 109
   }
 }
