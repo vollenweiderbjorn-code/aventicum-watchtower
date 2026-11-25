@@ -1,23 +1,32 @@
 {
-  "generatedAt": "2026-11-18T14:31:15Z",
+  "generatedAt": "2026-11-25T16:01:38Z",
   "model": "qwen3.8-max",
   "source": "avenches.ch/agenda",
   "pistes": [
     {
       "titre": "Exposition – Au boulot! Vies et métiers d’Aventicum",
-      "quand": "18 novembre 2026",
+      "quand": "25 novembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "Cette exposition du Musée romain attire un public intéressé par l'histoire d'Aventicum, exactement la thématique de notre jeu de piste.",
-      "action": "Bjorn devrait contacter le Musée romain d'Avenches pour proposer de déposer des flyers Aventicum Quest à la sortie de l'exposition ou publier un message sur les réseaux sociaux liant les métiers antiques au jeu.",
+      "pourquoi": "Cette exposition du Musée romain attire un public intéressé par le patrimoine antique d'Aventicum, exactement la thématique de notre jeu de piste.",
+      "action": "Bjorn devrait contacter le Musée romain d'Avenches pour proposer de glisser des flyers Aventicum Quest à la sortie de l'exposition ou publier un post sur les réseaux sociaux faisant le lien entre les métiers antiques présentés et le parcours du jeu.",
       "priorite": "haute",
       "url": "https://www.avenches.ch/events/exposition-au-boulot-vies-et-metiers-daventicum/"
+    },
+    {
+      "titre": "Village de Noël",
+      "quand": "1 décembre 2026",
+      "lieu": "Avenches",
+      "pourquoi": "Le Village de Noël rassemble familles et amis durant tout le mois de décembre sur la place de l'Eglise, ce qui est idéal pour vendre des bons cadeaux Aventicum Quest pour les fêtes.",
+      "action": "Bjorn devrait contacter Avenches Tourisme au +41 26 676 99 22 ou via info@avenches.ch pour demander s'il peut tenir un petit stand ou déposer des cartes cadeaux dans les chalets du marché.",
+      "priorite": "haute",
+      "url": "https://www.avenches.ch/events/village-de-noel/"
     },
     {
       "titre": "Animations de Noël pour les enfants",
       "quand": "2 décembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "Ces animations ciblent directement les familles avec enfants, qui constituent le public idéal pour un jeu de piste en équipe de 120 minutes.",
-      "action": "Bjorn devrait se rendre sur place lors des mercredis aux samedis de décembre pour distribuer des bons cadeaux Aventicum Quest aux parents présents au Village de Noël.",
+      "pourquoi": "Ces animations ciblent directement les familles avec enfants tous les mercredis aux samedis de décembre, soit le public principal pour une activité ludique en équipe.",
+      "action": "Bjorn pourrait se rendre sur place lors d'une animation pour distribuer des flyers aux parents et leur présenter le jeu comme une idée de sortie familiale originale à offrir pour Noël.",
       "priorite": "haute",
       "url": "https://www.avenches.ch/events/animations-de-noel-pour-les-enfants/"
     },
@@ -25,41 +34,32 @@
       "titre": "Les Apéritifs du Jeudi",
       "quand": "3 décembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "Cette conférence organisée par les Site et musée romains d'Avenches et l'Association Pro Aventico rassemble des passionnés du patrimoine local et de la vie des habitants d'Aventicum.",
-      "action": "Bjorn devrait écrire à l'Association Pro Aventico via info@avenches.ch pour demander l'autorisation de présenter brièvement le jeu aux participants avant ou après la conférence.",
+      "pourquoi": "Organisée par le Site et musée romains d'Avenches et l'Association Pro Aventico, cette conférence mensuelle réunit des passionnés d'histoire locale et de Rome antique.",
+      "action": "Bjorn devrait assister à cet apéritif pour réseauter avec les membres de Pro Aventico et présenter Aventicum Quest comme une extension ludique de la découverte d'Aventicum pour leurs visiteurs.",
       "priorite": "moyenne",
       "url": "https://www.avenches.ch/events/les-aperitifs-du-jeudi/"
     },
     {
-      "titre": "Village de Noël",
-      "quand": "1 décembre 2026",
+      "titre": "La Saint-Nicolas à Avenches",
+      "quand": "6 décembre 2026",
       "lieu": "Avenches",
-      "pourquoi": "Le Village de Noël sur la place de l'Eglise dure tout le mois de décembre et attire familles, amis et groupes cherchant des idées de sorties et de cadeaux de fin d'année.",
-      "action": "Bjorn devrait contacter Avenches Tourisme au +41 26 676 99 22 pour obtenir un petit stand ou une place dans un chalet afin de vendre des bons cadeaux pour Aventicum Quest pendant tout le mois.",
-      "priorite": "haute",
-      "url": "https://www.avenches.ch/events/village-de-noel/"
-    },
-    {
-      "titre": "Soirée de la Gym d’Avenches",
-      "quand": "3 décembre 2026",
-      "lieu": "Avenches",
-      "pourquoi": "Cet événement convivial organisé par les sociétés avenchoises au coeur du Village de Noël réunit des groupes locaux et des familles dans une ambiance festive propice aux échanges.",
-      "action": "Bjorn devrait participer à cette soirée pour discuter avec les membres des sociétés locales et leur suggérer Aventicum Quest comme activité de team building ou sortie entre amis.",
-      "priorite": "basse",
-      "url": "https://www.avenches.ch/events/soiree-de-la-gym-davenches/"
+      "pourquoi": "Le cortège traditionnel attire de nombreuses familles avenchoises et régionales dans les rues de la ville, créant une forte affluence propice à la visibilité locale.",
+      "action": "Bjorn pourrait profiter de la présence des familles dans les rues pour annoncer sur les réseaux sociaux locaux qu'un bon cadeau Aventicum Quest est le complément parfait à la fête de la Saint-Nicolas.",
+      "priorite": "moyenne",
+      "url": "https://www.avenches.ch/events/la-saint-nicolas-a-avenches/"
     },
     {
       "titre": "Morat Festival des Lumières",
       "quand": "20 janvier 2027",
       "lieu": "Murten",
-      "pourquoi": "Ce festival attire de nombreux visiteurs de la région, dont des familles et des groupes d'amis venant de communes voisines comme Avenches, à la recherche d'activités culturelles.",
-      "action": "Bjorn devrait publier une annonce ciblée sur les réseaux sociaux d'Aventicum Quest à destination des visiteurs du festival pour les inviter à prolonger leur découverte historique en jouant à Avenches.",
-      "priorite": "moyenne",
+      "pourquoi": "Ce festival immersif attire des groupes d'amis et des familles de toute la région, dont beaucoup passent par Avenches, offrant une belle vitrine régionale après les fêtes.",
+      "action": "Bjorn devrait publier une annonce ciblée géographiquement sur les réseaux sociaux pendant le festival pour inviter les visiteurs de Morat à prolonger leur excursion avec un jeu de piste à Avenches.",
+      "priorite": "basse",
       "url": "https://www.avenches.ch/events/morat-festival-des-lumieres/"
     }
   ],
   "usage": {
-    "input": 7721,
-    "output": 843
+    "input": 7655,
+    "output": 864
   }
 }
